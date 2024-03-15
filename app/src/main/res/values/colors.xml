@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_light">#6B95F2</color>
+    <color name="background_light_shadow">#9085AAF2</color>
+    <color name="card_background">#983B6AD1</color>
+    <color name="shadow_light">#80D2F2</color>
 </resources>
