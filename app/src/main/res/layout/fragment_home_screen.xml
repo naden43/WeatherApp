@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:backgroundTint="@color/card_background"
 
-    tools:context=".homePage.view.HomeScreen">
+    tools:context=".view.HomeScreen">
 
     <TextView
         android:id="@+id/locationTxt"

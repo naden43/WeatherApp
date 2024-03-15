@@ -10,4 +10,13 @@
     <string name="WindSpeed">Wind Speed</string>
     <string name="pressure">pressure</string>
     <string name="forcast_info">Forcast Info</string>
+    <string name="language">Language</string>
+    <string name="arabic">Arabic</string>
+    <string name="english">English</string>
+    <string name="celsius">Celsius</string>
+    <string name="temperature">Temperature</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="kelvin">Kelvin</string>
+    <string name="milies_hour">miles/hour</string>
+    <string name="meter_sec">meter/sec</string>
 </resources>
