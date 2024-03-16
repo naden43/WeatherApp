@@ -1,4 +1,4 @@
-package com.example.weatherapp.view
+package com.example.weatherapp.currentWearther.view
 
 
 import android.content.Context
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-class DayWeatherAdapter(var context: Context) : ListAdapter<Data, ViewHolder>(DayWeatherDiffUtil()){
+class DayWeatherAdapter(var context: Context ) : ListAdapter<Data, ViewHolder>(DayWeatherDiffUtil()){
 
     lateinit var binding: HourItemBinding
 
@@ -30,18 +30,26 @@ class DayWeatherAdapter(var context: Context) : ListAdapter<Data, ViewHolder>(Da
 
         val dateTime = LocalDateTime.parse(currentObj.dt_txt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         val formattedDate = dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-        holder.binding.txtTime.text = formattedDate
+        if(currentObj.currentTime){
+            holder.binding.txtTime.text = "Now"
+        }
+        else
+        {
+            holder.binding.txtTime.text = formattedDate
+        }
         holder.binding.txtTemp.text = currentObj.main.temp.toString()
         Glide.with(context).load("https://openweathermap.org/img/wn/${currentObj.weather.get(0).icon}@4x.png")
             .apply(RequestOptions().override(200, 200)).into(holder.binding.conditionImage)
     }
+
+
 }
 
 data class ViewHolder(var binding: HourItemBinding): RecyclerView.ViewHolder(binding.root)
 
 class DayWeatherDiffUtil : DiffUtil.ItemCallback<Data>(){
     override fun areItemsTheSame(oldItem: Data, newItem: Data): Boolean {
-        return oldItem.dt_txt==newItem.dt_txt
+        return oldItem.currentTime==newItem.currentTime
     }
 
     override fun areContentsTheSame(oldItem: Data, newItem: Data): Boolean {

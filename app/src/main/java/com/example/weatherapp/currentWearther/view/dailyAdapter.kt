@@ -1,4 +1,4 @@
-package com.example.weatherapp.view
+package com.example.weatherapp.currentWearther.view
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -14,7 +14,9 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-class DailyWeatherAdapter(var context: Context) : ListAdapter<Data, DailyViewHolder>(DailyWeatherDiffUtil()){
+class DailyWeatherAdapter(var context: Context) : ListAdapter<Data, DailyViewHolder>(
+    DailyWeatherDiffUtil()
+){
 
     lateinit var binding: DailyItemBinding
 

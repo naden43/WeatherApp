@@ -1,4 +1,4 @@
-package com.example.weatherapp.view
+package com.example.weatherapp.currentWearther.view
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -21,9 +21,13 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.currentWearther.viewModel
+import androidx.lifecycle.lifecycleScope
+import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
+import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.FragmentHomeScreenBinding
 import com.example.weatherapp.model.Data
+import com.example.weatherapp.model.Repository
+import com.example.weatherapp.network.ApiStatus
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -31,16 +35,16 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.squareup.picasso.Picasso
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class HomeScreen : Fragment() {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     val REQUEST_CODE = 500
-    lateinit var currentWeather: viewModel
+    lateinit var currentWeather: CurrentWeatherViewModel
 
     lateinit var binding: FragmentHomeScreenBinding
 
@@ -61,69 +65,102 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        currentWeather = ViewModelProvider(requireActivity()).get(viewModel::class.java)
 
-        currentWeather.weather.observe(requireActivity()){
-
-            val currentDateTime = LocalDateTime.now()
-            Log.i("TAG", "onViewCreated: " + ((currentDateTime.hour/24)*8).toInt())
-            val currentHourTimeStamp = ((currentDateTime.hour/24)*8).toInt()
-            //download icon
-            var logo = it.list.get(currentHourTimeStamp).weather.get(0).icon
-            Log.i("TAG", "onViewCreated: " + logo)
-            Picasso.get().load("https://openweathermap.org/img/wn/${logo}@4x.png").into(binding.weatherImage)
-
-            // display my location
-            Log.i("TAG", "onViewCreated: " + locationtext)
-            val parts = locationtext?.split(',')
-            val firstPart = parts?.first()?.trim()
-            val lastPart = parts?.last()?.trim()
-            binding.locationTxt.text = firstPart + " , " + lastPart
-
-            // display the date
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            val dateTime = LocalDateTime.parse(it.list.get(currentHourTimeStamp).dt_txt, formatter)
-            val outputDateString = dateTime.format(DateTimeFormatter.ofPattern("EEE, dd MMMM", Locale.ENGLISH))
-            binding.timeTxt.text = outputDateString
+        val factory = CurrectWeatherFactory(Repository.Instance())
+        currentWeather = ViewModelProvider(requireActivity() , factory).get(CurrentWeatherViewModel::class.java)
 
 
-            binding.descriptionTxt.text = it.list.get(currentHourTimeStamp).weather.get(0).description
+        lifecycleScope.launch {
+            currentWeather.weather.collect {result ->
 
-            // i am now in which time stamp
+                when(result){
 
-            binding.tempTxt.text = it.list.get(currentHourTimeStamp).main.temp.toString()
+                    is ApiStatus.Success -> {
 
-            val weatherAdapter = DayWeatherAdapter(requireActivity())
-            weatherAdapter.submitList(it.list.take(8))
-            binding.dayForeCastRecycularView.apply {
-                adapter = weatherAdapter
+                        withContext(Dispatchers.Main) {
+
+                            var returnedData = result.data
+
+                            var currentHourTimeStamp = currentWeather.getCurrentTimeStamp()
+
+
+                            returnedData.list = currentWeather.reArrangeList(returnedData.list , currentHourTimeStamp)
+
+                            returnedData.list.get(currentHourTimeStamp).currentTime = true
+
+                            //download icon
+                            var logo = returnedData.list.get(currentHourTimeStamp).weather.get(0).icon
+                            Picasso.get().load("https://openweathermap.org/img/wn/${logo}@4x.png")
+                                .into(binding.weatherImage)
+
+                            // display my location
+                            binding.locationTxt.text = currentWeather.getLocationText(locationtext)
+
+
+                            // display the date
+                            binding.timeTxt.text = currentWeather.getDateString(returnedData.list.get(currentHourTimeStamp).dt_txt)
+
+
+                            binding.descriptionTxt.text =
+                                returnedData.list.get(currentHourTimeStamp).weather.get(0).description
+
+                            // i am now in which time stamp
+                            binding.tempTxt.text =
+                                returnedData.list.get(currentHourTimeStamp).main.temp.toString()
+
+                            val weatherAdapter = DayWeatherAdapter(requireActivity())
+                            weatherAdapter.submitList(returnedData.list.take(8))
+                            binding.dayForeCastRecycularView.apply {
+                                adapter = weatherAdapter
+                            }
+
+                            val dailyWeatherAdapter = DailyWeatherAdapter(requireActivity())
+                            var count = 0
+                            val listOfDays = mutableListOf<Data>()
+                            while (count < 5) {
+                                val timeStampInDay = 3 + (count * 8)
+                                val dayElement = returnedData.list.get(timeStampInDay)
+                                listOfDays.add(dayElement)
+                                count++
+                            }
+                            dailyWeatherAdapter.submitList(listOfDays)
+                            binding.dailyRecycularView.apply {
+                                adapter = dailyWeatherAdapter
+                            }
+
+                            binding.cloudsTxt.text =
+                                "${returnedData.list.get(currentHourTimeStamp).clouds.all} %"
+
+                            binding.humidityTxt.text =
+                                "${returnedData.list.get(currentHourTimeStamp).main.humidity} %"
+
+                            binding.pressureTxt.text =
+                                returnedData.list.get(currentHourTimeStamp).main.pressure.toString() + " mbar"
+
+                            binding.windTxt.text =
+                                returnedData.list.get(currentHourTimeStamp).wind.speed.toString()
+
+                        }
+                    }
+                    is ApiStatus.Failure -> {
+
+                        // show view of notwerk conictivity
+                    }
+                    is ApiStatus.Loading -> {
+
+
+                    }
+
+                }
+
+
+
             }
-
-            val dailyWeatherAdapter = DailyWeatherAdapter(requireActivity())
-            var count = 0
-            val listOfDays = mutableListOf<Data>()
-            while (count<5){
-                val timeStampInDay = 3 + (count*8)
-                val dayElement = it.list.get(timeStampInDay)
-                listOfDays.add(dayElement)
-                count++
-            }
-            dailyWeatherAdapter.submitList(listOfDays)
-            binding.dailyRecycularView.apply {
-                adapter = dailyWeatherAdapter
-            }
-
-            binding.cloudsTxt.text = "${it.list.get(currentHourTimeStamp).clouds.all} %"
-
-            binding.humidityTxt.text = "${it.list.get(currentHourTimeStamp).main.humidity} %"
-
-            binding.pressureTxt.text = it.list.get(currentHourTimeStamp).main.pressure.toString() + " mbar"
-
-            binding.windTxt.text  = it.list.get(currentHourTimeStamp).wind.speed.toString()
         }
 
 
     }
+
 
     override fun onStart() {
         super.onStart()

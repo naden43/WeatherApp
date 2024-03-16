@@ -4,7 +4,7 @@ import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
-class Repository {
+class Repository : IRepository {
 
     lateinit var remoteWeather: WeatherRemoteDataSourceImpl
 
@@ -24,7 +24,7 @@ class Repository {
         }
     }
 
-     fun getWeather(lat:Double , lon:Double): Flow<DayWeather> {
+     override fun getWeather(lat:Double, lon:Double): Flow<DayWeather> {
         return remoteWeather.getWeather(lat , lon)
     }
 

@@ -3,7 +3,7 @@ package com.example.weatherapp.model
 import com.google.gson.annotations.SerializedName
 
 class DayWeather {
-    var list:List<Data> = listOf()
+    var list:MutableList<Data> = mutableListOf()
     var city:City = City()
 }
 
@@ -50,7 +50,9 @@ data class Data(
     var pop: Double ,
     var rain:Rain ,
     var dt_txt:String ,
-    var snow:Snow  = Snow()
+    var snow:Snow  = Snow() ,
+    var currentTime:Boolean = false
+
 )
 
 

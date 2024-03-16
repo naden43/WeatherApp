@@ -19,4 +19,7 @@
     <string name="kelvin">Kelvin</string>
     <string name="milies_hour">miles/hour</string>
     <string name="meter_sec">meter/sec</string>
+    <string name="gps">GPS</string>
+    <string name="location_method">Location method</string>
+    <string name="cellular">Cellular</string>
 </resources>
