@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
-class CurrentWeatherViewModel(var repo:IRepository) : ViewModel(){
+class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
 
 
     private var _weather: MutableStateFlow<ApiStatus<DayWeather>> = MutableStateFlow<ApiStatus<DayWeather>>(ApiStatus.Loading)

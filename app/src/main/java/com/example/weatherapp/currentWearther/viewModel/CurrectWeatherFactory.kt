@@ -10,5 +10,4 @@ import com.example.weatherapp.model.IRepository
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return CurrentWeatherViewModel(repository) as T
         }
-
     }

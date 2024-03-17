@@ -27,7 +27,10 @@ import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.FragmentHomeScreenBinding
 import com.example.weatherapp.model.Data
 import com.example.weatherapp.model.Repository
+import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.ApiStatus
+import com.example.weatherapp.network.WeatherRemoteDataSource
+import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -66,7 +69,7 @@ class HomeScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val factory = CurrectWeatherFactory(Repository.Instance())
+        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
         currentWeather = ViewModelProvider(requireActivity() , factory).get(CurrentWeatherViewModel::class.java)
 
 
