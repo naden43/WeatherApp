@@ -155,7 +155,7 @@ class HomeScreen : Fragment() {
 
                             var symbol  = currentWeather.getUnitSymbol(settings.getUnit())
                             // i am now in which time stamp
-                            when(settings.getLanguage() == "ar")
+                            /*when(settings.getLanguage() == "ar")
                             {
                                 (symbol == "C") -> {
                                     symbol = "س"
@@ -166,7 +166,7 @@ class HomeScreen : Fragment() {
                                 else -> {
                                     symbol = "ك"
                                 }
-                            }
+                            }*/
                             binding.tempTxt.text =
                                 " ${returnedData.list.get(currentHourTimeStamp).main.temp.toString()}  $symbol"
 

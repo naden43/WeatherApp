@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -24,6 +25,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
 import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
+import com.example.weatherapp.databinding.ActivityMainBinding
 import com.example.weatherapp.model.Repository
 import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
@@ -43,9 +45,12 @@ class MainActivity : AppCompatActivity() {
     var actionBar:ActionBar? = null
     lateinit var fragText:TextView
     lateinit var icon:ImageView
+    lateinit var binding:ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
 
         val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) ))
@@ -109,22 +114,38 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if(destination.id == R.id.favouriteScreen){
                     fragText.text = getString(R.string.favourites)
+                    this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
+                    this@MainActivity.binding.fragText.visibility = View.VISIBLE
+                    this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else if(destination.id == R.id.homeScreen){
                     fragText.text = getString(R.string.home)
+                    this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
+                    this@MainActivity.binding.fragText.visibility = View.VISIBLE
+                    this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else if(destination.id == R.id.alertScreen){
                     fragText.text = getString(R.string.alert)
+                    this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
+                    this@MainActivity.binding.fragText.visibility = View.VISIBLE
+                    this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else if(destination.id == R.id.settingsScreen){
                     fragText.text = getString(R.string.settings)
+                    this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
+                    this@MainActivity.binding.fragText.visibility = View.VISIBLE
+                    this@MainActivity.binding.icon.visibility = View.VISIBLE
+                }
+                else{
+                    this@MainActivity.binding.drawerIcon.visibility = View.GONE
+                    this@MainActivity.binding.fragText.visibility = View.GONE
+                    this@MainActivity.binding.icon.visibility = View.GONE
                 }
 
             }
 
         })
     }
-
 
 
 }

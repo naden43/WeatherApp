@@ -14,7 +14,11 @@
         android:id="@+id/settingsScreen"
         android:name="com.example.weatherapp.settings.view.SettingsScreen"
         android:label="Settings"
-        tools:layout="@layout/fragment_settings_screen" />
+        tools:layout="@layout/fragment_settings_screen" >
+        <action
+            android:id="@+id/action_settingsScreen_to_mapFragment2"
+            app:destination="@id/mapFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/alertScreen"
         android:name="com.example.weatherapp.AlertScreen"
@@ -25,4 +29,13 @@
         android:name="com.example.weatherapp.FavouriteScreen"
         android:label="Favourites"
         tools:layout="@layout/fragment_favourite_screen" />
+    <fragment
+        android:id="@+id/mapFragment2"
+        android:name="com.example.weatherapp.mapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment2_to_settingsScreen"
+            app:destination="@id/settingsScreen" />
+    </fragment>
 </navigation>

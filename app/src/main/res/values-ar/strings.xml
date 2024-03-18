@@ -26,4 +26,6 @@
     <string name="home">الصفحة الرئيسية</string>
     <string name="alert">الانذارات</string>
     <string name="favourites">المفضلة</string>
+    <string name="google_map_api_key">AIzaSyADndwyHVmWL3K9h1MyxsAlIS89R0jFuzk</string>
+
 </resources>

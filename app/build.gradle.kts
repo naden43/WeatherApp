@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -72,5 +73,8 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.6.0")
 
     implementation("com.squareup.picasso:picasso:2.8")
+
+    //google map
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
 }
