@@ -33,6 +33,23 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
         }
     }
 
+    fun getWeather(lon:Double , lat:Double , lang:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.getWeather(lon, lat , lang)/*.catch { _weather.value = ApiStatus.Failure(it) }*/.collect {
+                _weather.value = ApiStatus.Success(it)
+            }
+        }
+    }
+
+
+    fun getWeather(lon:Double , lat:Double , lang:String , unit:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.getWeather(lon, lat , lang , unit)/*.catch { _weather.value = ApiStatus.Failure(it) }*/.collect {
+                _weather.value = ApiStatus.Success(it)
+            }
+        }
+    }
+
     fun getCurrentTimeStamp() : Int
     {
         val currentDateTime = LocalDateTime.now()
@@ -76,6 +93,22 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
                 )
             )
         return outputDateString
+    }
+
+    fun getUnitSymbol(unit:String) : String
+    {
+        if(unit == "metric")
+        {
+            return "C"
+        }
+        else if(unit == "imperial")
+        {
+            return "F"
+        }
+        else
+        {
+            return "K"
+        }
     }
 
 }

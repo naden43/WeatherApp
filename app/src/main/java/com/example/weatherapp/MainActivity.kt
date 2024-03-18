@@ -1,7 +1,12 @@
 package com.example.weatherapp
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
@@ -9,11 +14,28 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
+import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
+import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
+import com.example.weatherapp.model.Repository
+import com.example.weatherapp.model.SettingLocalDataSourceImpl
+import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.settings.viewModel.SettingViewModel
+import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,22 +48,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        /*val repo:Repository = Repository.Instance()
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) ))
+        var settings = ViewModelProvider(this, settingFactory).get(SettingViewModel::class.java)
 
-        lifecycleScope.launch(Dispatchers.IO) {
 
-            val result = repo.getWeather(44.34 , 10.99)
+        lifecycleScope.launch {
 
-            if(result.isSuccessful){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                var action = settings.language.collect {
+                    val primaryLocale: Locale = this@MainActivity.resources.configuration.locales[0]
+                    val locale: String = primaryLocale.language
+                    Log.i("TAG", "onCreate: here $locale")
+                    if(!locale.equals(it)) {
+                        Log.i("TAG", "onCreate:  $it")
+                        var local: Locale = Locale(it)
+                        Locale.setDefault(local) // Set default locale
+                        var resources: Resources = this@MainActivity.resources
+                        var config: Configuration = resources.configuration
+                        config.setLocale(local)
+                        resources.updateConfiguration(config, resources.displayMetrics)
 
-                Log.i("TAG", "onCreate: " + result.body()?.list?.get(0)?.dt_txt)
+                        this@MainActivity.recreate()
+
+                    }
+                }
 
             }
-            else{
-                Log.i("TAG", "onCreate: " + result.errorBody())
-            }
+        }
 
-        }*/
 
         // intialize drawer
         drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
@@ -50,18 +84,7 @@ class MainActivity : AppCompatActivity() {
         icon = findViewById(R.id.drawerIcon)
 
 
-        // create action bar
-        /*val actionBar = supportActionBar
-        actionBar?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM)
-        actionBar?.setCustomView(R.layout.custom_action_bar)
-        actionBar?.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.background))
-        val titleTextView = actionBar?.customView?.findViewById<TextView>(R.id.action_bar_title)
-
-
-
-        // handle icon to open and close drawer
-        val actionBarIcon = actionBar?.customView?.findViewById<ImageView>(R.id.imageView2)
-        */icon.setOnClickListener {
+      icon.setOnClickListener {
             if(drawerLayout.isDrawerOpen(GravityCompat.START))
             {
                 drawerLayout.closeDrawer(GravityCompat.START)
@@ -85,23 +108,21 @@ class MainActivity : AppCompatActivity() {
                 arguments: Bundle?
             ) {
                 if(destination.id == R.id.favouriteScreen){
-                    fragText.text = "Favourites"
+                    fragText.text = getString(R.string.favourites)
                 }
                 else if(destination.id == R.id.homeScreen){
-                    fragText.text = "Home"
+                    fragText.text = getString(R.string.home)
                 }
                 else if(destination.id == R.id.alertScreen){
-                    fragText.text = "Alert"
+                    fragText.text = getString(R.string.alert)
                 }
                 else if(destination.id == R.id.settingsScreen){
-                    fragText.text = "Settings"
+                    fragText.text = getString(R.string.settings)
                 }
 
             }
 
         })
-
-
     }
 
 

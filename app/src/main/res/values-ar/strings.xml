@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Weather">الطقس</string>
+    <string name="WeekForecast">طقس الاسبوع</string>
+    <string name="DayForecast">طقس اليوم</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="clouds">السحب</string>
+    <string name="WindSpeed">سرعة الرياح</string>
+    <string name="pressure">الضغط</string>
+    <string name="forcast_info">معلومات الطقس</string>
+    <string name="language">اللغة</string>
+    <string name="arabic">عربي</string>
+    <string name="english">انجليزي</string>
+    <string name="celsius">سيليزي</string>
+    <string name="temperature">درجة الحرارة</string>
+    <string name="fahrenheit">فيهرينهيت</string>
+    <string name="kelvin">كيلفن</string>
+    <string name="milies_hour">ميل/س</string>
+    <string name="meter_sec">م/ث</string>
+    <string name="gps">نظام تحديد المواقع</string>
+    <string name="location_method">طريقة الموقع</string>
+    <string name="cellular">الخريطة</string>
+    <string name="settings">الاعدادات</string>
+    <string name="home">الصفحة الرئيسية</string>
+    <string name="alert">الانذارات</string>
+    <string name="favourites">المفضلة</string>
+</resources>

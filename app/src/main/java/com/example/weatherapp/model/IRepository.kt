@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface IRepository {
     fun getWeather(lat: Double, lon: Double): Flow<DayWeather>
+    fun getWeather(lat: Double, lon: Double , lang: String): Flow<DayWeather>
+    fun getWeather(lat: Double, lon: Double , lang: String , unit: String): Flow<DayWeather>
     fun setLanguage(lang: String)
     fun setUnit(unit: String)
     fun setWindSpeed(wind: String)

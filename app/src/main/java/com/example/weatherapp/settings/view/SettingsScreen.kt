@@ -1,5 +1,7 @@
 package com.example.weatherapp.settings.view
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,12 +10,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withCreated
 import com.example.weatherapp.databinding.FragmentSettingsScreenBinding
 import com.example.weatherapp.model.Repository
 import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class SettingsScreen : Fragment() {
 
@@ -40,7 +48,32 @@ class SettingsScreen : Fragment() {
          val factory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity())))
          settingViewModel = ViewModelProvider(requireActivity() , factory).get(SettingViewModel::class.java)
 
+
+
+
         val lang = settingViewModel.getLanguage()
+
+        /*lifecycleScope.launch {
+
+            settingViewModel.language.collect {
+                withContext(Dispatchers.Main) {
+                    var local: Locale = Locale(it)
+                    Locale.setDefault(local) // Set default locale
+                    var resources: Resources = requireActivity().resources
+                    var config: Configuration = resources.configuration
+                    config.locale = local
+                    resources.updateConfiguration(config, resources.displayMetrics)
+                    if (it == "ar") {
+                        requireActivity().window.decorView.layoutDirection =
+                            View.LAYOUT_DIRECTION_RTL
+                    } else {
+                        requireActivity().window.decorView.layoutDirection =
+                            View.LAYOUT_DIRECTION_LTR
+                    }
+                }
+            }
+        }*/
+
         if(lang == "en"){
             binding.englishSwitch.isChecked = true
         }
@@ -50,16 +83,15 @@ class SettingsScreen : Fragment() {
         }
 
         val unit = settingViewModel.getUnit()
-        Log.i("TAG", "onViewCreated:  $unit")
-        if(unit == "celsius")
+        if(unit == "metric")
         {
             binding.celesiusSwitch.isChecked = true
         }
-        else if(unit == "Fahrenheit")
+        else if(unit == "imperial")
         {
             binding.fehrenhitSwitch.isChecked = true
         }
-        else if(unit == "kelvin")
+        else if(unit == "")
         {
             binding.kelvinSwitch.isChecked = true
         }
@@ -88,6 +120,7 @@ class SettingsScreen : Fragment() {
             if (isChecked) {
                 binding.arabicSwitch.isChecked = false
                 settingViewModel.setLanguage("en")
+                requireActivity().recreate()
             }
             else
             {
@@ -98,6 +131,7 @@ class SettingsScreen : Fragment() {
             if (isChecked) {
                 binding.englishSwitch.isChecked = false
                 settingViewModel.setLanguage("ar")
+                requireActivity().recreate()
             }
             else
             {
@@ -158,6 +192,7 @@ class SettingsScreen : Fragment() {
             {
                 binding.fehrenhitSwitch.isChecked = false
                 binding.kelvinSwitch.isChecked = false
+                settingViewModel.setUnit("metric")
 
             }
             else
@@ -170,6 +205,7 @@ class SettingsScreen : Fragment() {
             {
                 binding.celesiusSwitch.isChecked = false
                 binding.kelvinSwitch.isChecked = false
+                settingViewModel.setUnit("imperial")
             }
 
         }
@@ -179,8 +215,8 @@ class SettingsScreen : Fragment() {
             {
                 binding.celesiusSwitch.isChecked = false
                 binding.fehrenhitSwitch.isChecked = false
+                settingViewModel.setUnit("")
             }
-
         }
 
     }

@@ -33,7 +33,7 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
         if(!sharedPreferences.contains(LANGUAGE))
         {
             setLanguage("en")
-            setUnit("celsius")
+            setUnit("metric")
             setWindSpeed("meter/sec")
             setLocationMethod("GPS")
         }

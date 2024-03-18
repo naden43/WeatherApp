@@ -9,6 +9,7 @@ class DayWeather {
 
 class City{
 
+    var name = ""
     var sunrise = 0
     var sunset = 0
 }

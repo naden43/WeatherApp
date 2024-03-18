@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -31,6 +33,8 @@ import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.ApiStatus
 import com.example.weatherapp.network.WeatherRemoteDataSource
 import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.settings.viewModel.SettingViewModel
+import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -39,8 +43,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 
 class HomeScreen : Fragment() {
@@ -48,13 +54,54 @@ class HomeScreen : Fragment() {
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     val REQUEST_CODE = 500
     lateinit var currentWeather: CurrentWeatherViewModel
+    lateinit var settings:SettingViewModel
 
     lateinit var binding: FragmentHomeScreenBinding
 
     var locationtext : String? = null
 
+    var longitude:Double = 0.0
+    var latitude:Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
+        currentWeather = ViewModelProvider(requireActivity() , factory).get(CurrentWeatherViewModel::class.java)
+
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
+        settings = ViewModelProvider(requireActivity() , settingFactory).get(SettingViewModel::class.java)
+
+        /*var local: Locale = Locale(settings.getLanguage())
+        Locale.setDefault(local) // Set default locale
+        var resources: Resources = requireActivity().resources
+        var config:Configuration = resources.configuration
+        config.locale = local
+        resources.updateConfiguration(config , resources.displayMetrics)
+        if (settings.getLanguage()== "ar") {
+            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
+        } else {
+            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
+        }*/
+
+        if (checkPermission()) {
+            if (isLocationEnabled()) {
+                getLocation()
+            } else {
+                enableLocation()
+
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                REQUEST_CODE
+            )
+        }
+
 
     }
 
@@ -63,15 +110,13 @@ class HomeScreen : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeScreenBinding.inflate(inflater ,container,  false )
+
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
-        currentWeather = ViewModelProvider(requireActivity() , factory).get(CurrentWeatherViewModel::class.java)
-
 
         lifecycleScope.launch {
             currentWeather.weather.collect {result ->
@@ -82,6 +127,7 @@ class HomeScreen : Fragment() {
 
                         withContext(Dispatchers.Main) {
 
+                            //convertToText(latitude , longitude)
                             var returnedData = result.data
 
                             var currentHourTimeStamp = currentWeather.getCurrentTimeStamp()
@@ -97,7 +143,7 @@ class HomeScreen : Fragment() {
                                 .into(binding.weatherImage)
 
                             // display my location
-                            binding.locationTxt.text = currentWeather.getLocationText(locationtext)
+                            binding.locationTxt.text = returnedData.city.name //currentWeather.getLocationText(locationtext)
 
 
                             // display the date
@@ -107,9 +153,22 @@ class HomeScreen : Fragment() {
                             binding.descriptionTxt.text =
                                 returnedData.list.get(currentHourTimeStamp).weather.get(0).description
 
+                            var symbol  = currentWeather.getUnitSymbol(settings.getUnit())
                             // i am now in which time stamp
+                            when(settings.getLanguage() == "ar")
+                            {
+                                (symbol == "C") -> {
+                                    symbol = "س"
+                                }
+                                (symbol == "F") -> {
+                                    symbol = "ف"
+                                }
+                                else -> {
+                                    symbol = "ك"
+                                }
+                            }
                             binding.tempTxt.text =
-                                returnedData.list.get(currentHourTimeStamp).main.temp.toString()
+                                " ${returnedData.list.get(currentHourTimeStamp).main.temp.toString()}  $symbol"
 
                             val weatherAdapter = DayWeatherAdapter(requireActivity())
                             weatherAdapter.submitList(returnedData.list.take(8))
@@ -140,8 +199,26 @@ class HomeScreen : Fragment() {
                             binding.pressureTxt.text =
                                 returnedData.list.get(currentHourTimeStamp).main.pressure.toString() + " mbar"
 
-                            binding.windTxt.text =
-                                returnedData.list.get(currentHourTimeStamp).wind.speed.toString()
+                            if(settings.getWindSpeed() == "meter/sec" && settings.getUnit() == "imperial")
+                            {
+                                binding.windTxt.text =
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed * 0.44704).toInt()}  meter/sec"
+                            }
+                            else if(settings.getWindSpeed() == "meter/sec")
+                            {
+                                binding.windTxt.text =
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  meter/sec"
+                            }
+                            else if(settings.getWindSpeed() == "miles/hour" && (settings.getUnit() == "metric" || settings.getUnit() == ""))
+                            {
+                                binding.windTxt.text =
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed/ 0.44704).toInt()}  miles/hour"
+                            }
+                            else{
+                                binding.windTxt.text =
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  miles/hour"
+                            }
+
 
                         }
                     }
@@ -156,8 +233,20 @@ class HomeScreen : Fragment() {
 
                 }
 
+            }
+        }
 
+        lifecycleScope.launch(Dispatchers.IO){
 
+            settings.language.collect {
+                 currentWeather.getWeather(longitude , latitude , it  , settings.getUnit())
+            }
+
+        }
+
+        lifecycleScope.launch(Dispatchers.IO){
+            settings.unit.collect{
+                currentWeather.getWeather(longitude , latitude , settings.getLanguage() , it)
             }
         }
 
@@ -167,24 +256,6 @@ class HomeScreen : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
-        if (checkPermission()) {
-            if (isLocationEnabled()) {
-                getLocation()
-            } else {
-                enableLocation()
-
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                REQUEST_CODE
-            )
-        }
 
     }
 
@@ -246,9 +317,12 @@ class HomeScreen : Fragment() {
                     var lon = location?.longitude.toString()
                     var lat = location?.latitude.toString()
 
-                    currentWeather.getWeather(lon.toDouble() , lat.toDouble())
 
-                    convertToText(location!!)
+                    longitude = lon.toDouble()
+                    latitude = lat.toDouble()
+                    currentWeather.getWeather(lon.toDouble(), lat.toDouble() , settings.getLanguage() , settings.getUnit())
+
+                     //convertToText(location!!)
                     //convertToText(location!!)
                     fusedLocationProviderClient.removeLocationUpdates(this)
 
@@ -258,10 +332,10 @@ class HomeScreen : Fragment() {
         )
     }
 
-    fun convertToText(location: Location){
-        val latitude = location.latitude
-        val longitude = location.longitude
-        val geoCoder: Geocoder = Geocoder(requireActivity())
+    fun convertToText(lat:Double , lon:Double){
+        val latitude = lat
+        val longitude = lon
+        val geoCoder: Geocoder = Geocoder(requireContext())
         Log.i("TAG", "convertToText: 1" )
         if(latitude!=null && longitude!=null) {
             geoCoder.getFromLocation(longitude, latitude, 1,

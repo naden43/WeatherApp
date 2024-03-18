@@ -5,17 +5,17 @@
     <item
         android:id="@+id/homeScreen"
         android:icon="@drawable/baseline_home_24"
-        android:title="Home" />
+        android:title="@string/home" />
     <item
         android:id="@+id/settingsScreen"
         android:icon="@drawable/baseline_settings_24"
-        android:title="Settings" />
+        android:title="@string/settings" />
     <item
         android:id="@+id/favouriteScreen"
         android:icon="@drawable/baseline_favorite_24"
-        android:title="Favourites" />
+        android:title="@string/favourites" />
     <item
         android:id="@+id/alertScreen"
         android:icon="@drawable/alert"
-        android:title="Alert" />
+        android:title="@string/alert" />
 </menu>

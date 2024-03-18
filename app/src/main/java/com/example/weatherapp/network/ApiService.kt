@@ -11,4 +11,11 @@ interface ApiService {
     @GET("forecast")
     suspend fun getWeather(@Query("lat") lat:Double , @Query("lon") lon:Double  , @Query("appid") appid:String):Response<DayWeather>
 
+    @GET("forecast")
+    suspend fun getWeather(@Query("lat") lat:Double , @Query("lon") lon:Double  ,@Query("lang") lang:String ,@Query("appid") appid:String):Response<DayWeather>
+
+    @GET("forecast")
+    suspend fun getWeather(@Query("lat") lat:Double , @Query("lon") lon:Double  ,@Query("lang") lang:String , @Query("units") unit:String ,@Query("appid") appid:String):Response<DayWeather>
+
+
 }

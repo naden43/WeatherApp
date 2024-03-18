@@ -23,6 +23,14 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
 
      override fun getWeather(lat:Double, lon:Double): Flow<DayWeather> {
         return remoteWeather.getWeather(lat , lon)
+     }
+
+    override fun getWeather(lat:Double, lon:Double , lang:String): Flow<DayWeather> {
+        return remoteWeather.getWeather(lat , lon , lang)
+    }
+
+    override fun getWeather(lat:Double, lon:Double , lang:String , unit:String): Flow<DayWeather> {
+        return remoteWeather.getWeather(lat , lon , lang , unit)
     }
 
     override fun setLanguage(lang:String){
