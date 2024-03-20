@@ -1,17 +1,31 @@
 package com.example.weatherapp.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.weatherapp.db.CityConverter
+import com.example.weatherapp.db.DataListConverter
 import com.google.gson.annotations.SerializedName
 
-class DayWeather {
-    var list:MutableList<Data> = mutableListOf()
-    var city:City = City()
-}
+
+@Entity(tableName = "day_weather")
+data class DayWeather(
+    @PrimaryKey
+    @TypeConverters(DataListConverter::class)
+    var list: MutableList<Data> = mutableListOf() ,
+
+    @TypeConverters(CityConverter::class)
+    val city: City = City() ,
+
+    var lang:String
+)
 
 class City{
 
     var name = ""
     var sunrise = 0
     var sunset = 0
+    var coord:Coord = Coord()
 }
 
 class Coord{

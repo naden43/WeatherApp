@@ -5,16 +5,16 @@ import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
-class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSettings:SettingLocalDataSource) : IRepository{
+class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSettings:SettingLocalDataSource , var localWeather:DayWeatherLocalDataSource) : IRepository{
 
 
 
     companion object{
         var INSTANCE:Repository? = null
 
-        fun Instance(remoteWeather: WeatherRemoteDataSource, localSettings:SettingLocalDataSource):Repository {
+        fun Instance(remoteWeather: WeatherRemoteDataSource, localSettings:SettingLocalDataSource , localWeather: DayWeatherLocalDataSource):Repository {
             return INSTANCE ?: synchronized(this) {
-                val tempInstance = Repository(remoteWeather , localSettings)
+                val tempInstance = Repository(remoteWeather , localSettings , localWeather)
                 INSTANCE = tempInstance
                 tempInstance
             }
@@ -66,6 +66,34 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
 
     override fun getLocationMethod() : String{
         return localSettings.getLocationMethod()
+    }
+
+    override fun getLongitude(): Double {
+        return localSettings.getLongitude()
+    }
+
+    override fun getLatitude(): Double {
+        return localSettings.getLatitude()
+    }
+
+    override fun setLatitude(lat: Double) {
+        localSettings.setLatitude(lat)
+    }
+
+    override fun setLongitude(lon: Double) {
+        localSettings.setLongitude(lon)
+    }
+
+    override fun insertDayForecast(dayWeather: DayWeather) {
+        localWeather.insertDayForecast(dayWeather)
+    }
+
+    override fun deleteDayForecast(dayWeather: DayWeather) {
+        localWeather.deleteDayForecast(dayWeather)
+    }
+
+    override fun getDayForecast(lang: String): Flow<DayWeather> {
+         return localWeather.getDayForecast(lang)
     }
 
 }

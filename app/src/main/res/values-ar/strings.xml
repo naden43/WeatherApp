@@ -27,5 +27,9 @@
     <string name="alert">الانذارات</string>
     <string name="favourites">المفضلة</string>
     <string name="google_map_api_key">AIzaSyADndwyHVmWL3K9h1MyxsAlIS89R0jFuzk</string>
+    <string name="add_location">اختر</string>
+    <string name="map">الخريطة</string>
+    <string name="change_location">تغيير الموقع</string>
+
 
 </resources>

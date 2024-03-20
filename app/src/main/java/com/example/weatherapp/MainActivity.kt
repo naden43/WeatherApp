@@ -26,6 +26,7 @@ import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
 import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.ActivityMainBinding
+import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
 import com.example.weatherapp.model.Repository
 import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
@@ -53,17 +54,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) ))
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) , DayWeatherLocalDataSourceImpl(this) ))
         var settings = ViewModelProvider(this, settingFactory).get(SettingViewModel::class.java)
 
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO){
 
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                var action = settings.language.collect {
+                 settings.language.collect {
                     val primaryLocale: Locale = this@MainActivity.resources.configuration.locales[0]
                     val locale: String = primaryLocale.language
-                    Log.i("TAG", "onCreate: here $locale")
+
                     if(!locale.equals(it)) {
                         Log.i("TAG", "onCreate:  $it")
                         var local: Locale = Locale(it)
@@ -72,12 +73,11 @@ class MainActivity : AppCompatActivity() {
                         var config: Configuration = resources.configuration
                         config.setLocale(local)
                         resources.updateConfiguration(config, resources.displayMetrics)
-
-                        this@MainActivity.recreate()
-
+                        withContext(Dispatchers.Main) {
+                            this@MainActivity.recreate()
+                        }
                     }
                 }
-
             }
         }
 

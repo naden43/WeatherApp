@@ -24,10 +24,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
 import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.FragmentHomeScreenBinding
 import com.example.weatherapp.model.Data
+import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
 import com.example.weatherapp.model.Repository
 import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.ApiStatus
@@ -62,29 +64,21 @@ class HomeScreen : Fragment() {
 
     var longitude:Double = 0.0
     var latitude:Double = 0.0
+    var langObserver  = null
+    var unitObserver = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
-        currentWeather = ViewModelProvider(requireActivity() , factory).get(CurrentWeatherViewModel::class.java)
+        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
+        currentWeather = ViewModelProvider(this , factory).get(CurrentWeatherViewModel::class.java)
 
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) ))
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
         settings = ViewModelProvider(requireActivity() , settingFactory).get(SettingViewModel::class.java)
 
-        /*var local: Locale = Locale(settings.getLanguage())
-        Locale.setDefault(local) // Set default locale
-        var resources: Resources = requireActivity().resources
-        var config:Configuration = resources.configuration
-        config.locale = local
-        resources.updateConfiguration(config , resources.displayMetrics)
-        if (settings.getLanguage()== "ar") {
-            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
-        } else {
-            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
-        }*/
 
-        if (checkPermission()) {
+
+        /*if (checkPermission()) {
             if (isLocationEnabled()) {
                 getLocation()
             } else {
@@ -100,8 +94,22 @@ class HomeScreen : Fragment() {
                 ),
                 REQUEST_CODE
             )
+        }*/
+
+
+        /*lifecycleScope.launch(Dispatchers.IO){
+
+            settings.language.collect {
+                currentWeather.getWeather(longitude , latitude , it  , settings.getUnit())
+            }
+
         }
 
+        lifecycleScope.launch(Dispatchers.IO){
+            settings.unit.collect{
+                currentWeather.getWeather(longitude , latitude , settings.getLanguage() , it)
+            }
+        }*/
 
     }
 
@@ -118,6 +126,38 @@ class HomeScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        if(settings.getLocationMethod() == "MAP") {
+
+
+            currentWeather.getWeather(settings.getLongitude(), settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
+
+        }
+        else{
+            if (checkPermission()) {
+                if (isLocationEnabled()) {
+                    getLocation()
+                } else {
+                    enableLocation()
+
+                }
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    ),
+                    REQUEST_CODE
+                )
+            }
+        }
+
+
+
+
+
+
         lifecycleScope.launch {
             currentWeather.weather.collect {result ->
 
@@ -125,15 +165,16 @@ class HomeScreen : Fragment() {
 
                     is ApiStatus.Success -> {
 
+                        binding.loader.visibility = View.GONE
+
                         withContext(Dispatchers.Main) {
 
-                            //convertToText(latitude , longitude)
                             var returnedData = result.data
 
                             var currentHourTimeStamp = currentWeather.getCurrentTimeStamp()
 
 
-                            returnedData.list = currentWeather.reArrangeList(returnedData.list , currentHourTimeStamp)
+                            returnedData.list = currentWeather.reArrangeList(returnedData.list.toMutableList() , currentHourTimeStamp)
 
                             returnedData.list.get(currentHourTimeStamp).currentTime = true
 
@@ -223,11 +264,11 @@ class HomeScreen : Fragment() {
                         }
                     }
                     is ApiStatus.Failure -> {
-
                         // show view of notwerk conictivity
                     }
                     is ApiStatus.Loading -> {
 
+                        binding.loader.visibility = View.VISIBLE
 
                     }
 
@@ -236,19 +277,6 @@ class HomeScreen : Fragment() {
             }
         }
 
-        lifecycleScope.launch(Dispatchers.IO){
-
-            settings.language.collect {
-                 currentWeather.getWeather(longitude , latitude , it  , settings.getUnit())
-            }
-
-        }
-
-        lifecycleScope.launch(Dispatchers.IO){
-            settings.unit.collect{
-                currentWeather.getWeather(longitude , latitude , settings.getLanguage() , it)
-            }
-        }
 
 
     }
@@ -320,10 +348,11 @@ class HomeScreen : Fragment() {
 
                     longitude = lon.toDouble()
                     latitude = lat.toDouble()
-                    currentWeather.getWeather(lon.toDouble(), lat.toDouble() , settings.getLanguage() , settings.getUnit())
+                    settings.setLatitude(latitude)
+                    settings.setLongitude(longitude)
+                    currentWeather.getWeather(lon.toDouble(), lat.toDouble() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
 
-                     //convertToText(location!!)
-                    //convertToText(location!!)
+
                     fusedLocationProviderClient.removeLocationUpdates(this)
 
                 }

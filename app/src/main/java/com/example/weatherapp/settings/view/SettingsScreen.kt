@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
 import com.example.weatherapp.databinding.FragmentSettingsScreenBinding
+import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
 import com.example.weatherapp.model.Repository
 import com.example.weatherapp.model.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
@@ -36,7 +37,7 @@ class SettingsScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-         val factory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity())))
+         val factory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireActivity())))
          settingViewModel = ViewModelProvider(requireActivity() , factory).get(SettingViewModel::class.java)
 
 
@@ -101,10 +102,13 @@ class SettingsScreen : Fragment() {
         if(loactionMethod == "GPS")
         {
             binding.gpsSwitch.isChecked = true
+            binding.button.isEnabled = false
         }
         else
         {
             binding.cellularSwitch.isChecked = true
+            binding.button.isEnabled = true
+
         }
 
         binding.englishSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -157,6 +161,7 @@ class SettingsScreen : Fragment() {
             {
                 binding.cellularSwitch.isChecked = false
                 settingViewModel.setLocationMethod("GPS")
+                binding.button.isEnabled = false
             }
             else
             {
@@ -169,7 +174,7 @@ class SettingsScreen : Fragment() {
             {
                 binding.gpsSwitch.isChecked = false
                 settingViewModel.setLocationMethod("MAP")
-
+                binding.button.isEnabled = true
 
                 val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
                 findNavController(binding.root).navigate(action)
@@ -211,6 +216,11 @@ class SettingsScreen : Fragment() {
                 binding.fehrenhitSwitch.isChecked = false
                 settingViewModel.setUnit("")
             }
+        }
+
+        binding.button.setOnClickListener {
+            val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
+            findNavController(binding.root).navigate(action)
         }
 
     }

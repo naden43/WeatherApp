@@ -9,7 +9,16 @@
         android:id="@+id/homeScreen"
         android:name="com.example.weatherapp.currentWearther.view.HomeScreen"
         android:label="Home"
-        tools:layout="@layout/fragment_home_screen" />
+        tools:layout="@layout/fragment_home_screen" >
+        <argument
+            android:name="latitiude"
+            app:argType="float"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="longitiude"
+            app:argType="float"
+            android:defaultValue="0.0" />
+    </fragment>
     <fragment
         android:id="@+id/settingsScreen"
         android:name="com.example.weatherapp.settings.view.SettingsScreen"
@@ -35,7 +44,7 @@
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
         <action
-            android:id="@+id/action_mapFragment2_to_settingsScreen"
-            app:destination="@id/settingsScreen" />
+            android:id="@+id/action_mapFragment2_to_homeScreen"
+            app:destination="@id/homeScreen" />
     </fragment>
 </navigation>

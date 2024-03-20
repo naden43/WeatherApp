@@ -8,6 +8,17 @@
 
     tools:context=".currentWearther.view.HomeScreen">
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/loader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="180dp"
+        android:layout_marginTop="15dp"
+        android:elevation="10dp"
+        android:indeterminate="true"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/locationTxt" />
 
     <TextView
         android:id="@+id/locationTxt"

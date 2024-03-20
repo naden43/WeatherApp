@@ -69,4 +69,23 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
         _method.value = method
     }
 
+    fun setLongitude(lon:Double){
+        repo.setLongitude(lon)
+    }
+
+    fun setLatitude(lat:Double)
+    {
+        repo.setLatitude(lat)
+    }
+
+    fun getLongitude() : Double
+    {
+        return repo.getLongitude()
+    }
+
+    fun getLatitude(): Double
+    {
+        return repo.getLatitude()
+    }
+
 }

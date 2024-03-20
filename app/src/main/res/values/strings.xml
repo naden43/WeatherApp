@@ -27,4 +27,7 @@
     <string name="alert">Alert</string>
     <string name="favourites">Favourites</string>
     <string name="google_map_api_key">AIzaSyADndwyHVmWL3K9h1MyxsAlIS89R0jFuzk</string>
+    <string name="add_location">add location</string>
+    <string name="change_location">change location</string>
+    <string name="map">Map</string>
 </resources>

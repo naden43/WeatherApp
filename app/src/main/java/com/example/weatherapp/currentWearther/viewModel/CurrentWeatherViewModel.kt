@@ -1,5 +1,6 @@
 package com.example.weatherapp.currentWearther.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Data
@@ -11,9 +12,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 
@@ -42,12 +46,72 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
     }
 
 
-    fun getWeather(lon:Double , lat:Double , lang:String , unit:String){
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.getWeather(lon, lat , lang , unit)/*.catch { _weather.value = ApiStatus.Failure(it) }*/.collect {
-                _weather.value = ApiStatus.Success(it)
+    fun getWeather(lon:Double , lat:Double , lang:String , unit:String , locationMethod:String){
+
+        viewModelScope.launch(Dispatchers.IO){
+
+            _weather.value = ApiStatus.Loading
+            Log.i("TAG", "getWeather:  ${_weather.value}")
+            repo.getDayForecast(lang).collect{
+                 if(it != null) {
+                    val dayWeather = it.list
+                    val city = it.city
+
+                    var status = false
+                    val currentDate = getCurrentDateTime()
+
+
+                    if (currentDate.equals(convertToDateFormat(dayWeather.get(0).dt_txt)) ) {
+                        if (locationMethod.equals("GPS")) {
+                            Log.i("TAG", "getWeather:  here ${repo.getLatitude()}  ${city.coord.lat}")
+                            if (repo.getLatitude().equals(city.coord.lat) && repo.getLongitude()
+                                    .equals(city.coord.lon)
+                            ) {
+                                _weather.value = ApiStatus.Success(it)
+                            }
+                        } else {
+
+                            if (repo.getLatitude().equals(city.coord.lat) && repo.getLongitude()
+                                    .equals(city.coord.lon)
+                            ) {
+                                _weather.value = ApiStatus.Success(it)
+                            }else{
+                            _weather.value = ApiStatus.Success(it)
+                            }
+                        }
+                    } else {
+                        repo.getWeather(lon, lat, lang, unit).collect {
+                            it.city.coord.lat = repo.getLatitude()
+                            it.city.coord.lon = repo.getLongitude()
+                            it.lang = repo.getLanguage()
+                            _weather.value = ApiStatus.Success(it)
+                            _weather.value = ApiStatus.Success(it)
+                            repo.insertDayForecast(it)
+                        }
+
+                    }
+                }
+                 else
+                {
+                    repo.getWeather(lon, lat, lang, unit).collect {
+                        it.city.coord.lat = repo.getLatitude()
+                        it.city.coord.lon = repo.getLongitude()
+                        it.lang = repo.getLanguage()
+                        _weather.value = ApiStatus.Success(it)
+                        repo.insertDayForecast(it)
+                    }
+
+                }
+
             }
         }
+
+        /*viewModelScope.launch(Dispatchers.IO) {
+            repo.getWeather(lon, lat , lang , unit)/*.catch { _weather.value = ApiStatus.Failure(it) }*/.collect {
+                _weather.value = ApiStatus.Success(it)
+                repo.insertDayForecast(it)
+            }
+        }*/
     }
 
     fun getCurrentTimeStamp() : Int
@@ -78,6 +142,17 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
         return "$firstPart , $lastPart"
     }
 
+    fun getCurrentDateTime(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val date = Date(System.currentTimeMillis())
+        return dateFormat.format(date)
+    }
+    fun convertToDateFormat(inputDate: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd")
+        val date = inputFormat.parse(inputDate)
+        return outputFormat.format(date)
+    }
     fun getDateString(date:String) : String{
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         val dateTime =
@@ -109,6 +184,11 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
         {
             return "K"
         }
+    }
+
+    fun returnToLoading()
+    {
+        _weather.value = ApiStatus.Loading
     }
 
 }

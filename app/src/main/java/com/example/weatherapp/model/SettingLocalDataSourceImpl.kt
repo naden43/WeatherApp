@@ -7,13 +7,15 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
 
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
-
     private val FILENAME = "setting file"
-
     private val LANGUAGE = "language"
     private val UNIT = "unit"
     private val WIND_SPEED = "wind speed"
     private val LOCATION_METHOD = "location method"
+    private val LONGITIUDE = "longitude"
+    private val LATITUDE = "latitude"
+
+
 
 
     companion object{
@@ -36,6 +38,7 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
             setUnit("metric")
             setWindSpeed("meter/sec")
             setLocationMethod("GPS")
+
         }
     }
 
@@ -74,5 +77,27 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
     override fun getLocationMethod(): String {
 
         return sharedPreferences.getString(LOCATION_METHOD, "GPS")!!
+    }
+
+    override fun setLongitude(lon:Double)
+    {
+        editor.putString(LONGITIUDE , lon.toString())
+        editor.commit()
+    }
+
+    override fun setLatitude(lat:Double){
+
+        editor.putString(LATITUDE , lat.toString())
+        editor.commit()
+    }
+
+    override fun getLongitude() : Double
+    {
+        return sharedPreferences.getString(LONGITIUDE ,"0.0" )!!.toDouble()
+    }
+
+    override fun getLatitude() : Double
+    {
+        return sharedPreferences.getString(LATITUDE ,"0.0" )!!.toDouble()
     }
 }

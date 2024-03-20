@@ -2,20 +2,26 @@ package com.example.weatherapp.model
 
 interface SettingLocalDataSource {
 
-    fun setLanguage(lang:String)
+    fun setLanguage(lang: String)
 
-    fun setUnit(unit:String)
+    fun setUnit(unit: String)
 
-    fun setWindSpeed(wind:String)
+    fun setWindSpeed(wind: String)
 
-    fun setLocationMethod(locationMethod:String)
+    fun setLocationMethod(locationMethod: String)
 
-    fun getLanguage():String
+    fun getLanguage(): String
 
     fun getUnit(): String
 
-    fun getWindSpeed() : String
+    fun getWindSpeed(): String
 
-    fun getLocationMethod() : String
+    fun getLocationMethod(): String
+    fun setLongitude(lon: Double)
+
+    fun setLatitude(lat: Double)
+
+    fun getLatitude() : Double
+    fun getLongitude() : Double
 
 }

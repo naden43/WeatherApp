@@ -14,4 +14,18 @@ interface IRepository {
     fun getUnit(): String
     fun getWindSpeed(): String
     fun getLocationMethod(): String
+
+    fun getLongitude():Double
+
+    fun getLatitude() : Double
+
+    fun setLatitude(lat:Double)
+
+    fun setLongitude(lon:Double)
+
+    fun insertDayForecast(dayWeather: DayWeather)
+
+    fun deleteDayForecast(dayWeather: DayWeather)
+
+    fun getDayForecast(lang: String) : Flow<DayWeather>
 }
