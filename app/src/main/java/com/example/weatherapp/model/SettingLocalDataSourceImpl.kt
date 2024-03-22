@@ -14,6 +14,8 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
     private val LOCATION_METHOD = "location method"
     private val LONGITIUDE = "longitude"
     private val LATITUDE = "latitude"
+    private val SESSION = "session"
+
 
 
 
@@ -38,7 +40,7 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
             setUnit("metric")
             setWindSpeed("meter/sec")
             setLocationMethod("GPS")
-
+            setSession(false)
         }
     }
 
@@ -89,6 +91,15 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
 
         editor.putString(LATITUDE , lat.toString())
         editor.commit()
+    }
+
+    override fun setSession(status:Boolean){
+        editor.putBoolean(SESSION , status)
+        editor.commit()
+    }
+
+    override fun getSession() : Boolean{
+        return sharedPreferences.getBoolean(SESSION , false)
     }
 
     override fun getLongitude() : Double

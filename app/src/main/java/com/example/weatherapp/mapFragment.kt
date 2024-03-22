@@ -65,12 +65,19 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
         binding.addLocationBtn.setOnClickListener {
             if(latitude!=null && longitude!=null)
             {
-                settings.setLatitude(latitude!!)
-                settings.setLongitude(longitude!!)
-                val action = mapFragmentDirections.actionMapFragment2ToHomeScreen()
-                action.latitiude = latitude!!.toFloat()
-                action.longitiude = longitude!!.toFloat()
-                Navigation.findNavController(binding.root).navigate(action)
+                lifecycleScope.launch(Dispatchers.IO){
+
+                    settings.deleteCashedData()
+                    settings.setSession(false)
+                    withContext(Dispatchers.Main) {
+                        settings.setLatitude(latitude!!)
+                        settings.setLongitude(longitude!!)
+                        val action = mapFragmentDirections.actionMapFragment2ToHomeScreen()
+                        action.latitiude = latitude!!.toFloat()
+                        action.longitiude = longitude!!.toFloat()
+                        Navigation.findNavController(binding.root).navigate(action)
+                    }
+                }
             }
         }
 

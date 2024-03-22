@@ -10,13 +10,13 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "day_weather")
 data class DayWeather(
-    @PrimaryKey
     @TypeConverters(DataListConverter::class)
     var list: MutableList<Data> = mutableListOf() ,
 
     @TypeConverters(CityConverter::class)
     val city: City = City() ,
 
+    @PrimaryKey
     var lang:String
 )
 
@@ -35,15 +35,15 @@ class Coord{
 }
 
 class Main {
-    val temp = 0.0
+    var temp = 0.0
 
     val pressure = 0.0
 
-    val feels_like = 0.0
+    var feels_like = 0.0
 
-    val temp_min = 0.0
+    var temp_min = 0.0
 
-    val temp_max = 0.0
+    var temp_max = 0.0
 
     val sea_level = 0
 
@@ -51,7 +51,7 @@ class Main {
 
     val humidity = 0
 
-    val temp_kf = 0.0
+    var temp_kf = 0.0
 
 }
 

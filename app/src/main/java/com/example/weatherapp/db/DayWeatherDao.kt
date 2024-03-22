@@ -10,11 +10,17 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DayWeatherDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertDayForecast(dayWeather: DayWeather):Long
     @Delete
     fun deleteDayForecast(dayWeather: DayWeather)
     @Query("SELECT * FROM day_weather WHERE lang = :language")
     fun getDayWeather(language: String): Flow<DayWeather>
+
+    @Query("SELECT * FROM day_weather")
+    fun getAllDayWeather(): Flow<List<DayWeather>>
+
+    @Query("DELETE FROM day_weather")
+    fun deleteAllWeathers()
 
 }

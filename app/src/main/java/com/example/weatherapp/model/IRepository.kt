@@ -28,4 +28,10 @@ interface IRepository {
     fun deleteDayForecast(dayWeather: DayWeather)
 
     fun getDayForecast(lang: String) : Flow<DayWeather>
+
+    fun getSession() : Boolean
+
+    fun setSession(status:Boolean)
+    fun getAllDayWeather(): Flow<List<DayWeather>>
+    fun deleteAllDayWeather()
 }

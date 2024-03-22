@@ -35,8 +35,8 @@ class DailyWeatherAdapter(var context: Context) : ListAdapter<Data, DailyViewHol
         val day = dateTime.format(DateTimeFormatter.ofPattern("E"))
 
         holder.binding.dayTxt.text = day
-        holder.binding.lowTemp.text= currentObj.main.temp_min.toString()
-        holder.binding.highTemp.text = currentObj.main.temp_max.toString()
+        holder.binding.lowTemp.text= currentObj.main.temp_min.toInt().toString()
+        holder.binding.highTemp.text = currentObj.main.temp_max.toInt().toString()
 
         Glide.with(context).load("https://openweathermap.org/img/wn/${currentObj.weather.get(0).icon}@4x.png")
             .apply(RequestOptions().override(200, 200)).into(holder.binding.dayImage)

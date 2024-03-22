@@ -103,6 +103,7 @@ class SettingsScreen : Fragment() {
         {
             binding.gpsSwitch.isChecked = true
             binding.button.isEnabled = false
+            settingViewModel.setSession(false)
         }
         else
         {

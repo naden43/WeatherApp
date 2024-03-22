@@ -11,4 +11,6 @@ interface DayWeatherLocalDataSource {
     fun getDayForecast(lang:String): Flow<DayWeather>
 
 
+    fun getAllDayForecast(): Flow<List<DayWeather>>
+    fun deleteAllDays()
 }

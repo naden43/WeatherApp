@@ -96,4 +96,21 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
          return localWeather.getDayForecast(lang)
     }
 
+    override fun getSession(): Boolean {
+        return localSettings.getSession()
+    }
+
+    override fun setSession(status: Boolean) {
+        localSettings.setSession(status)
+    }
+
+    override fun getAllDayWeather()  : Flow<List<DayWeather>>{
+       return localWeather.getAllDayForecast()
+    }
+
+    override fun deleteAllDayWeather() {
+        localWeather.deleteAllDays()
+    }
+
+
 }

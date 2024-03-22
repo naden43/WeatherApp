@@ -127,6 +127,7 @@ class HomeScreen : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
         if(settings.getLocationMethod() == "MAP") {
 
 
@@ -134,22 +135,27 @@ class HomeScreen : Fragment() {
 
         }
         else{
-            if (checkPermission()) {
-                if (isLocationEnabled()) {
-                    getLocation()
-                } else {
-                    enableLocation()
+            if(settings.getSession())
+            {
+                currentWeather.getWeather(settings.getLongitude()  , settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
+            }
+            else {
+                if (checkPermission()) {
+                    if (isLocationEnabled()) {
+                        getLocation()
+                    } else {
+                        enableLocation()
 
+                    }
+                } else {
+                    requestPermissions(
+                        arrayOf(
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        REQUEST_CODE
+                    )
                 }
-            } else {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION
-                    ),
-                    REQUEST_CODE
-                )
             }
         }
 
@@ -209,7 +215,7 @@ class HomeScreen : Fragment() {
                                 }
                             }*/
                             binding.tempTxt.text =
-                                " ${returnedData.list.get(currentHourTimeStamp).main.temp.toString()}  $symbol"
+                                " ${returnedData.list.get(currentHourTimeStamp).main.temp.toInt().toString()}  $symbol"
 
                             val weatherAdapter = DayWeatherAdapter(requireActivity())
                             weatherAdapter.submitList(returnedData.list.take(8))
@@ -272,6 +278,7 @@ class HomeScreen : Fragment() {
 
                     }
 
+                    else -> {}
                 }
 
             }

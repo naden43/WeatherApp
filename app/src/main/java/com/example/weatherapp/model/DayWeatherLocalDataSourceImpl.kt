@@ -45,6 +45,14 @@ class DayWeatherLocalDataSourceImpl(context: Context) : DayWeatherLocalDataSourc
     override fun getDayForecast(lang:String): Flow<DayWeather> {
         return dayWeatherDao.getDayWeather(lang)
     }
+    override fun getAllDayForecast(): Flow<List<DayWeather>> {
+        return dayWeatherDao.getAllDayWeather()
+    }
+
+    override fun deleteAllDays(){
+        return dayWeatherDao.deleteAllWeathers()
+    }
+
 
 
 }

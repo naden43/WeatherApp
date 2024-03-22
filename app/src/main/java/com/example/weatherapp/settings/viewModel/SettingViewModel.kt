@@ -88,4 +88,19 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
         return repo.getLatitude()
     }
 
+    fun setSession(status:Boolean)
+    {
+        repo.setSession(status)
+    }
+
+    fun getSession() : Boolean
+    {
+        return repo.getSession()
+    }
+
+    fun deleteCashedData()
+    {
+        repo.deleteAllDayWeather()
+    }
+
 }

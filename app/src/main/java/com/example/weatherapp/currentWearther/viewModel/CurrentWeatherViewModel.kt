@@ -46,72 +46,91 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
     }
 
 
-    fun getWeather(lon:Double , lat:Double , lang:String , unit:String , locationMethod:String){
+    fun getWeather(lon:Double , lat:Double , lang:String , unit:String , locationMethod:String) {
 
-        viewModelScope.launch(Dispatchers.IO){
-
+        viewModelScope.launch(Dispatchers.IO) {
             _weather.value = ApiStatus.Loading
-            Log.i("TAG", "getWeather:  ${_weather.value}")
-            repo.getDayForecast(lang).collect{
-                 if(it != null) {
-                    val dayWeather = it.list
-                    val city = it.city
+            if(repo.getSession() ){
+                repo.getDayForecast(lang).collect{data ->
 
-                    var status = false
-                    val currentDate = getCurrentDateTime()
-
-
-                    if (currentDate.equals(convertToDateFormat(dayWeather.get(0).dt_txt)) ) {
-                        if (locationMethod.equals("GPS")) {
-                            Log.i("TAG", "getWeather:  here ${repo.getLatitude()}  ${city.coord.lat}")
-                            if (repo.getLatitude().equals(city.coord.lat) && repo.getLongitude()
-                                    .equals(city.coord.lon)
-                            ) {
-                                _weather.value = ApiStatus.Success(it)
-                            }
-                        } else {
-
-                            if (repo.getLatitude().equals(city.coord.lat) && repo.getLongitude()
-                                    .equals(city.coord.lon)
-                            ) {
-                                _weather.value = ApiStatus.Success(it)
-                            }else{
-                            _weather.value = ApiStatus.Success(it)
-                            }
+                    if(data != null)
+                    {
+                        if(unit== "metric") {
+                            _weather.value = ApiStatus.Success(convertTemperatureToCelsius(data))
                         }
-                    } else {
-                        repo.getWeather(lon, lat, lang, unit).collect {
-                            it.city.coord.lat = repo.getLatitude()
-                            it.city.coord.lon = repo.getLongitude()
-                            it.lang = repo.getLanguage()
-                            _weather.value = ApiStatus.Success(it)
-                            _weather.value = ApiStatus.Success(it)
-                            repo.insertDayForecast(it)
+                        else if(unit == "imperial")
+                        {
+                            _weather.value = ApiStatus.Success(convertTemperatureToFahrenheit(data))
+
+                        }
+                        else
+                        {
+                            _weather.value = ApiStatus.Success(data)
                         }
 
                     }
-                }
-                 else
-                {
-                    repo.getWeather(lon, lat, lang, unit).collect {
-                        it.city.coord.lat = repo.getLatitude()
-                        it.city.coord.lon = repo.getLongitude()
-                        it.lang = repo.getLanguage()
-                        _weather.value = ApiStatus.Success(it)
-                        repo.insertDayForecast(it)
+                    else{
+                        getDataFromApi(lon , lat , lang , unit )
                     }
-
                 }
-
+            }
+            else
+            {
+                getDataFromApi(lon , lat , lang , unit )
             }
         }
+    }
 
-        /*viewModelScope.launch(Dispatchers.IO) {
-            repo.getWeather(lon, lat , lang , unit)/*.catch { _weather.value = ApiStatus.Failure(it) }*/.collect {
-                _weather.value = ApiStatus.Success(it)
+    fun convertKelvinToCelsius(kelvin: Double): Double {
+        return kelvin - 273.15 // Kelvin to Celsius conversion formula
+    }
+
+    fun convertTemperatureToCelsius(weatherResponse: DayWeather): DayWeather {
+        for (item in weatherResponse.list) {
+            item.main.temp = convertKelvinToCelsius(item.main.temp)
+            item.main.feels_like = convertKelvinToCelsius(item.main.feels_like)
+            item.main.temp_min = convertKelvinToCelsius(item.main.temp_min)
+            item.main.temp_max = convertKelvinToCelsius(item.main.temp_max)
+            item.main.temp_kf = convertKelvinToCelsius(item.main.temp_kf)
+        }
+        return weatherResponse
+    }
+
+    fun convertKelvinToFahrenheit(kelvin: Double): Double {
+        return ((kelvin * 9) / 5) - 459.67 // Kelvin to Fahrenheit conversion formula
+    }
+
+    fun convertTemperatureToFahrenheit(weatherResponse: DayWeather): DayWeather {
+        for (item in weatherResponse.list) {
+            item.main.temp = convertKelvinToFahrenheit(item.main.temp)
+            item.main.feels_like = convertKelvinToFahrenheit(item.main.feels_like)
+            item.main.temp_min = convertKelvinToFahrenheit(item.main.temp_min)
+            item.main.temp_max = convertKelvinToFahrenheit(item.main.temp_max)
+            item.main.temp_kf = convertKelvinToFahrenheit(item.main.temp_kf)
+        }
+        return weatherResponse
+    }
+    fun getDataFromApi(lon:Double , lat:Double , lang:String  , unit: String)
+    {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.getWeather(lon, lat, lang).collect {
+                it.lang = repo.getLanguage()
                 repo.insertDayForecast(it)
+                // _weather.value = ApiStatus.Success(it)
+                if(unit== "metric") {
+                    _weather.value = ApiStatus.Success(convertTemperatureToCelsius(it))
+                }
+                else if(unit == "imperial")
+                {
+                    _weather.value = ApiStatus.Success(convertTemperatureToFahrenheit(it))
+
+                }
+                else
+                {
+                    _weather.value = ApiStatus.Success(it)
+                }
             }
-        }*/
+        }
     }
 
     fun getCurrentTimeStamp() : Int

@@ -37,7 +37,7 @@ class DayWeatherAdapter(var context: Context ) : ListAdapter<Data, ViewHolder>(D
         {
             holder.binding.txtTime.text = formattedDate
         }
-        holder.binding.txtTemp.text = currentObj.main.temp.toString()
+        holder.binding.txtTemp.text = currentObj.main.temp.toInt().toString()
         Glide.with(context).load("https://openweathermap.org/img/wn/${currentObj.weather.get(0).icon}@4x.png")
             .apply(RequestOptions().override(200, 200)).into(holder.binding.conditionImage)
     }

@@ -24,4 +24,6 @@ interface SettingLocalDataSource {
     fun getLatitude() : Double
     fun getLongitude() : Double
 
+    fun setSession(status: Boolean)
+    fun getSession(): Boolean
 }

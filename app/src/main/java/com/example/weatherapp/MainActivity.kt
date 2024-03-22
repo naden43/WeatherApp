@@ -1,6 +1,7 @@
 package com.example.weatherapp
 
 import android.app.Activity
+import android.app.LocaleManager
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -47,39 +48,51 @@ class MainActivity : AppCompatActivity() {
     lateinit var fragText:TextView
     lateinit var icon:ImageView
     lateinit var binding:ActivityMainBinding
+    lateinit var settings:SettingViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) , DayWeatherLocalDataSourceImpl(this) ))
+        settings = ViewModelProvider(this, settingFactory).get(SettingViewModel::class.java)
+
+        Log.i("TAG", "onCreate:  ${settings.getSession()} ")
+        if(savedInstanceState != null)
+        {
+            Log.i("TAG", "onCreate:  bundle save ")
+            settings.setSession(true)
+        }
+
+        val primaryLocale: Locale = resources.configuration.locales[0]
+        val locale: String = primaryLocale.language
+
+       if(!locale.equals(settings.getLanguage())) {
+             changeLanguage()
+       }
+
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) , DayWeatherLocalDataSourceImpl(this) ))
-        var settings = ViewModelProvider(this, settingFactory).get(SettingViewModel::class.java)
-
-
         lifecycleScope.launch(Dispatchers.IO){
 
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                 settings.language.collect {
+             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                settings.language.collect {
+
                     val primaryLocale: Locale = this@MainActivity.resources.configuration.locales[0]
                     val locale: String = primaryLocale.language
 
-                    if(!locale.equals(it)) {
-                        Log.i("TAG", "onCreate:  $it")
-                        var local: Locale = Locale(it)
-                        Locale.setDefault(local) // Set default locale
-                        var resources: Resources = this@MainActivity.resources
-                        var config: Configuration = resources.configuration
-                        config.setLocale(local)
-                        resources.updateConfiguration(config, resources.displayMetrics)
+                    if (!locale.equals(it)) {
+                        changeLanguage()
                         withContext(Dispatchers.Main) {
                             this@MainActivity.recreate()
                         }
                     }
                 }
+
             }
         }
+
+
 
 
         // intialize drawer
@@ -147,5 +160,20 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    fun changeLanguage()
+    {
+        Log.i("TAG", "onCreate:  ${settings.getLanguage()}")
+        var local: Locale = Locale(settings.getLanguage())
+        Locale.setDefault(local) // Set default locale
+        var resources: Resources = this@MainActivity.resources
+        var config: Configuration = resources.configuration
+        config.setLocale(local)
+        resources.updateConfiguration(config, resources.displayMetrics)
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("TAG", "onDestroy:  finish")
+        settings.setSession(false)
+    }
 }
