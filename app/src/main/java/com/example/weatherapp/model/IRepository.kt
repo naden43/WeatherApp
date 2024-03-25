@@ -34,4 +34,12 @@ interface IRepository {
     fun setSession(status:Boolean)
     fun getAllDayWeather(): Flow<List<DayWeather>>
     fun deleteAllDayWeather()
+    fun insertFavourite(favouriteWeather: FavouriteWeather)
+    fun deleteFavourite(favouriteWeather: FavouriteWeather)
+    fun getFavourite(lon: Double, lat: Double): Flow<FavouriteWeather>
+    fun getFavourites(): Flow<List<FavouriteWeather>>
+    fun getFavWeather(lat: Double, lon: Double, lang: String): Flow<FavouriteWeather>
+    fun insertAlert(alertWeather: AlertWeather)
+    fun deleteAlert(alertWeather: AlertWeather)
+    fun getAlerts(): Flow<List<AlertWeather>>
 }

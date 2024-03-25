@@ -128,36 +128,7 @@ class HomeScreen : Fragment() {
 
 
 
-        if(settings.getLocationMethod() == "MAP") {
 
-
-            currentWeather.getWeather(settings.getLongitude(), settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
-
-        }
-        else{
-            if(settings.getSession())
-            {
-                currentWeather.getWeather(settings.getLongitude()  , settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
-            }
-            else {
-                if (checkPermission()) {
-                    if (isLocationEnabled()) {
-                        getLocation()
-                    } else {
-                        enableLocation()
-
-                    }
-                } else {
-                    requestPermissions(
-                        arrayOf(
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION
-                        ),
-                        REQUEST_CODE
-                    )
-                }
-            }
-        }
 
 
 
@@ -291,6 +262,35 @@ class HomeScreen : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        if(settings.getLocationMethod() == "MAP") {
+
+            currentWeather.getWeather(settings.getLongitude(), settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
+
+        }
+        else{
+            if(settings.getSession())
+            {
+                currentWeather.getWeather(settings.getLongitude()  , settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
+            }
+            else {
+                if (checkPermission()) {
+                    if (isLocationEnabled()) {
+                        getLocation()
+                    } else {
+                        enableLocation()
+
+                    }
+                } else {
+                    requestPermissions(
+                        arrayOf(
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        REQUEST_CODE
+                    )
+                }
+            }
+        }
 
     }
 

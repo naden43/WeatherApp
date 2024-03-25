@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -53,6 +52,7 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
             if(repo.getSession() ){
                 repo.getDayForecast(lang).collect{data ->
 
+                    Log.i("TAG", "getWeather: get from db ")
                     if(data != null)
                     {
                         if(unit== "metric") {
@@ -70,12 +70,14 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
 
                     }
                     else{
+                        Log.i("TAG", "getWeather: get from network  another language")
                         getDataFromApi(lon , lat , lang , unit )
                     }
                 }
             }
             else
             {
+                Log.i("TAG", "getWeather: get from network ")
                 getDataFromApi(lon , lat , lang , unit )
             }
         }
@@ -114,8 +116,13 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
     {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getWeather(lon, lat, lang).collect {
+                if(!repo.getSession())
+                {
+                    repo.deleteAllDayWeather()
+                }
                 it.lang = repo.getLanguage()
                 repo.insertDayForecast(it)
+                repo.setSession(true)
                 // _weather.value = ApiStatus.Success(it)
                 if(unit== "metric") {
                     _weather.value = ApiStatus.Success(convertTemperatureToCelsius(it))

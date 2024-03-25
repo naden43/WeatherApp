@@ -5,7 +5,7 @@ import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
-class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSettings:SettingLocalDataSource , var localWeather:DayWeatherLocalDataSource) : IRepository{
+class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSettings:SettingLocalDataSource , var localWeather:DayWeatherLocalDataSource ) : IRepository{
 
 
 
@@ -29,6 +29,9 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
         return remoteWeather.getWeather(lat , lon , lang)
     }
 
+    override fun getFavWeather(lat:Double, lon:Double , lang:String): Flow<FavouriteWeather> {
+        return remoteWeather.getFavWeather(lat , lon , lang)
+    }
     override fun getWeather(lat:Double, lon:Double , lang:String , unit:String): Flow<DayWeather> {
         return remoteWeather.getWeather(lat , lon , lang , unit)
     }
@@ -110,6 +113,36 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
 
     override fun deleteAllDayWeather() {
         localWeather.deleteAllDays()
+    }
+
+
+    override fun insertFavourite(favouriteWeather: FavouriteWeather){
+        localWeather.insertFavourite(favouriteWeather)
+    }
+
+    override fun deleteFavourite(favouriteWeather: FavouriteWeather){
+        localWeather.deleteFavourite(favouriteWeather)
+    }
+
+    override fun getFavourite(lon:Double , lat:Double) : Flow<FavouriteWeather>{
+        return localWeather.getFavourite(lon , lat)
+    }
+
+
+    override fun getFavourites() : Flow<List<FavouriteWeather>>{
+        return localWeather.getFavourites()
+    }
+
+    override fun insertAlert(alertWeather: AlertWeather){
+        localWeather.insertAlert(alertWeather)
+    }
+
+    override fun deleteAlert(alertWeather: AlertWeather){
+        localWeather.deleteAlert(alertWeather)
+    }
+
+    override fun getAlerts() : Flow<List<AlertWeather>>{
+        return localWeather.getAlerts()
     }
 
 

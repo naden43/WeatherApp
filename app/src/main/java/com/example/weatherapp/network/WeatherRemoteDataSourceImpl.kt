@@ -1,6 +1,7 @@
 package com.example.weatherapp.network
 
 import com.example.weatherapp.model.DayWeather
+import com.example.weatherapp.model.FavouriteWeather
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
@@ -54,6 +55,13 @@ class WeatherRemoteDataSourceImpl : WeatherRemoteDataSource {
             emit(api.getWeather(lat , lon , lang , unit, appid).body()!!)
         }
     }
+
+    override fun getFavWeather(lat: Double, lon: Double, lang: String): Flow<FavouriteWeather> {
+        return flow<FavouriteWeather> {
+            emit(api.getFavWeather(lat , lon , lang , appid).body()!!)
+        }
+    }
+
 
 
 

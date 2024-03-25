@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         val locale: String = primaryLocale.language
 
        if(!locale.equals(settings.getLanguage())) {
+           Log.i("TAG", "onCreate: jjjjjjjjjjjjjjjj${settings.getSession()} ")
              changeLanguage()
        }
 
@@ -82,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                     val locale: String = primaryLocale.language
 
                     if (!locale.equals(it)) {
+                        Log.i("TAG", "onCreate:  here  ${settings.getSession()}")
                         changeLanguage()
                         withContext(Dispatchers.Main) {
                             this@MainActivity.recreate()

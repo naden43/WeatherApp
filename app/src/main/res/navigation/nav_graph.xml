@@ -30,14 +30,45 @@
     </fragment>
     <fragment
         android:id="@+id/alertScreen"
-        android:name="com.example.weatherapp.AlertScreen"
+        android:name="com.example.weatherapp.alert.view.AlertScreen"
         android:label="Alert"
-        tools:layout="@layout/fragment_alert_screen" />
+        tools:layout="@layout/fragment_alert_screen" >
+        <action
+            android:id="@+id/action_alertScreen_to_mapFragment2"
+            app:destination="@id/mapFragment2" />
+        <argument
+            android:name="latitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="longitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
+    </fragment>
     <fragment
         android:id="@+id/favouriteScreen"
-        android:name="com.example.weatherapp.FavouriteScreen"
+        android:name="com.example.weatherapp.favourite.view.FavouriteScreen"
         android:label="Favourites"
-        tools:layout="@layout/fragment_favourite_screen" />
+        tools:layout="@layout/fragment_favourite_screen" >
+        <action
+            android:id="@+id/action_favouriteScreen_to_mapFragment2"
+            app:destination="@id/mapFragment2" />
+        <argument
+            android:name="longitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="latitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="country"
+            app:argType="string"
+            android:defaultValue="egypt" />
+        <action
+            android:id="@+id/action_favouriteScreen_to_favDetails"
+            app:destination="@id/favDetails" />
+    </fragment>
     <fragment
         android:id="@+id/mapFragment2"
         android:name="com.example.weatherapp.mapFragment"
@@ -46,5 +77,29 @@
         <action
             android:id="@+id/action_mapFragment2_to_homeScreen"
             app:destination="@id/homeScreen" />
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <action
+            android:id="@+id/action_mapFragment2_to_favouriteScreen"
+            app:destination="@id/favouriteScreen" />
+        <action
+            android:id="@+id/action_mapFragment2_to_alertScreen"
+            app:destination="@id/alertScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/favDetails"
+        android:name="com.example.weatherapp.favourite.view.FavDetails"
+        android:label="fragment_fav_details"
+        tools:layout="@layout/fragment_fav_details" >
+        <argument
+            android:name="latitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="longitude"
+            app:argType="string"
+            android:defaultValue="0.0" />
     </fragment>
 </navigation>

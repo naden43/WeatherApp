@@ -1,11 +1,14 @@
 package com.example.weatherapp.settings.viewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.DayWeather
 import com.example.weatherapp.model.IRepository
 import com.example.weatherapp.network.ApiStatus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class SettingViewModel(var repo: IRepository): ViewModel() {
 
@@ -15,7 +18,7 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
     val language : StateFlow<String> = _language
 
     // unit observation
-    private var _unit: MutableStateFlow<String> = MutableStateFlow<String>(repo.getUnit())
+    /*private var _unit: MutableStateFlow<String> = MutableStateFlow<String>(repo.getUnit())
     val unit : StateFlow<String> = _unit
 
     // wind speed observation
@@ -24,7 +27,7 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
 
     // location method observation
     private var _method: MutableStateFlow<String> = MutableStateFlow<String>(repo.getLocationMethod())
-    val method : StateFlow<String> = _method
+    val method : StateFlow<String> = _method*/
 
     fun getLanguage() :String
     {
@@ -54,19 +57,26 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
     fun setUnit(unit:String)
     {
         repo.setUnit(unit)
-        _unit.value = unit
+        //_unit.value = unit
+    }
+
+    fun deleteDataBase()
+    {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteAllDayWeather()
+        }
     }
 
     fun setWindSpeed(wind:String)
     {
         repo.setWindSpeed(wind)
-        _wind.value = wind
+        //_wind.value = wind
     }
 
     fun setLocationMethod(method:String)
     {
         repo.setLocationMethod(method)
-        _method.value = method
+        //_method.value = method
     }
 
     fun setLongitude(lon:Double){

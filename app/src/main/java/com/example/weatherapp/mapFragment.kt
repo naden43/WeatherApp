@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import java.util.Locale
+import okhttp3.Request
+import org.json.JSONObject
+import java.io.IOException
 
 class mapFragment : Fragment()  , OnMapReadyCallback{
 
@@ -33,6 +39,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
     var latitude : Double? = null
     var longitude: Double? = null
     var marker: Marker? = null
+    var country:String? = null
     lateinit var settings : SettingViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,15 +74,38 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
             {
                 lifecycleScope.launch(Dispatchers.IO){
 
-                    settings.deleteCashedData()
-                    settings.setSession(false)
-                    withContext(Dispatchers.Main) {
-                        settings.setLatitude(latitude!!)
-                        settings.setLongitude(longitude!!)
-                        val action = mapFragmentDirections.actionMapFragment2ToHomeScreen()
-                        action.latitiude = latitude!!.toFloat()
-                        action.longitiude = longitude!!.toFloat()
-                        Navigation.findNavController(binding.root).navigate(action)
+                    if(arguments?.getInt("id") == 1) {
+                        settings.deleteCashedData()
+                        settings.setSession(false)
+                        withContext(Dispatchers.Main) {
+                            settings.setLatitude(latitude!!)
+                            settings.setLongitude(longitude!!)
+                            val action = mapFragmentDirections.actionMapFragment2ToHomeScreen()
+                            action.latitiude = latitude!!.toFloat()
+                            action.longitiude = longitude!!.toFloat()
+                            Navigation.findNavController(binding.root).navigate(action)
+                        }
+                    }
+                    else if(arguments?.getInt("id") == 2)
+                    {
+                        country = getCountryName(latitude!!, longitude!!)
+                        withContext(Dispatchers.Main) {
+                            val action = mapFragmentDirections.actionMapFragment2ToFavouriteScreen()
+                            action.longitude = longitude!!.toString()
+                            action.latitude = latitude!!.toString()
+                            action.country = country!!
+                            Navigation.findNavController(binding.root).navigate(action)
+                        }
+
+                    }
+                    else if(arguments?.getInt("id") == 3)
+                    {
+                        withContext(Dispatchers.Main) {
+                            val action = mapFragmentDirections.actionMapFragment2ToAlertScreen()
+                            action.longitude = longitude!!.toString()
+                            action.latitude = latitude!!.toString()
+                            Navigation.findNavController(binding.root).navigate(action)
+                        }
                     }
                 }
             }
@@ -91,6 +121,20 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
         googleMap!!.setOnMapClickListener { latLng ->
             latitude = latLng.latitude
             longitude = latLng.longitude
+
+            // Perform reverse geocoding to get the country
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latitude!!, longitude!!, 1)
+
+
+            /*country = ""
+            if (addresses!!.isNotEmpty()) {
+                country = addresses[0].countryName
+            }*/
+
+            // Now you have the country, you can use it as needed
+            //Log.d("Country", country)
+
             marker?.remove()
             lifecycleScope.launch {
                 withContext(Dispatchers.Main) {
@@ -109,4 +153,24 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
 
 
 
+}
+
+fun getCountryName(latitude: Double, longitude: Double): String {
+    val url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude"
+
+    val client = OkHttpClient()
+    val request = Request.Builder().url(url).build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            throw IOException("Unexpected code $response")
+        }
+
+        val responseBody = response.body()?.string()
+
+        val jsonObject = JSONObject(responseBody)
+        val address = jsonObject.getJSONObject("address")
+        val city = address.optString("city", "")
+        return address.optString("city", "Unknown")
+    }
 }

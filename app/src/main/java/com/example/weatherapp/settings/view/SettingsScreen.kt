@@ -103,7 +103,6 @@ class SettingsScreen : Fragment() {
         {
             binding.gpsSwitch.isChecked = true
             binding.button.isEnabled = false
-            settingViewModel.setSession(false)
         }
         else
         {
@@ -163,6 +162,8 @@ class SettingsScreen : Fragment() {
                 binding.cellularSwitch.isChecked = false
                 settingViewModel.setLocationMethod("GPS")
                 binding.button.isEnabled = false
+                settingViewModel.setSession(false)
+                settingViewModel.deleteDataBase()
             }
             else
             {
@@ -178,6 +179,7 @@ class SettingsScreen : Fragment() {
                 binding.button.isEnabled = true
 
                 val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
+                action.id = 1
                 findNavController(binding.root).navigate(action)
 
             }
@@ -221,6 +223,7 @@ class SettingsScreen : Fragment() {
 
         binding.button.setOnClickListener {
             val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
+            action.id = 1
             findNavController(binding.root).navigate(action)
         }
 

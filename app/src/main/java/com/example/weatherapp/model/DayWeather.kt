@@ -20,6 +20,20 @@ data class DayWeather(
     var lang:String
 )
 
+@Entity(tableName = "fav_weather", primaryKeys = ["lon", "lat"])
+data class FavouriteWeather(
+    var countryName :String ,
+    var lon: Double,
+    var lat: Double
+)
+
+@Entity(tableName = "alert_weather")
+data class AlertWeather(
+    var date:String,
+    var time:String,
+    @PrimaryKey
+    var requestId:String
+)
 class City{
 
     var name = ""

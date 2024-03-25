@@ -13,4 +13,11 @@ interface DayWeatherLocalDataSource {
 
     fun getAllDayForecast(): Flow<List<DayWeather>>
     fun deleteAllDays()
+    fun insertFavourite(favouriteWeather: FavouriteWeather)
+    fun deleteFavourite(favouriteWeather: FavouriteWeather)
+    fun getFavourite(lon: Double, lat: Double): Flow<FavouriteWeather>
+    fun getFavourites(): Flow<List<FavouriteWeather>>
+    fun getAlerts(): Flow<List<AlertWeather>>
+    fun insertAlert(alertWeather: AlertWeather)
+    fun deleteAlert(alertWeather: AlertWeather)
 }
