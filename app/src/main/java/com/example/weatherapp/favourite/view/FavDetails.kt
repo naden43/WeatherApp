@@ -15,13 +15,13 @@ import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.FragmentFavDetailsBinding
 import com.example.weatherapp.favourite.viewModel.FavouriteViewModel
 import com.example.weatherapp.favourite.viewModel.FavouriteViewModelFactory
-import com.example.weatherapp.model.Data
-import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
-import com.example.weatherapp.model.FavouriteWeather
-import com.example.weatherapp.model.Repository
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.model.Data
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
+import com.example.weatherapp.data.repository.Repository
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
 import com.example.weatherapp.network.ApiStatus
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.squareup.picasso.Picasso
@@ -55,13 +55,15 @@ class FavDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
+        val factory = CurrectWeatherFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(
+            WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,
+            WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         currentWeather = ViewModelProvider(this , factory).get(CurrentWeatherViewModel::class.java)
 
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         settings = ViewModelProvider(requireActivity() , settingFactory).get(SettingViewModel::class.java)
 
-        val favFactory = FavouriteViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
+        val favFactory = FavouriteViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         favouriteViewModel = ViewModelProvider(requireActivity() , favFactory).get(FavouriteViewModel::class.java)
 
         if (arguments != null)

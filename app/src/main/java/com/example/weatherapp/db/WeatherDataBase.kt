@@ -5,9 +5,9 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters
-import com.example.weatherapp.model.AlertWeather
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.FavouriteWeather
+import com.example.weatherapp.data.model.AlertWeather
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
 
 
 @Database(entities = [DayWeather::class , FavouriteWeather::class , AlertWeather::class], version = 1)

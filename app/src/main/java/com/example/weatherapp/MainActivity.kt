@@ -1,19 +1,14 @@
 package com.example.weatherapp
 
-import android.app.Activity
-import android.app.LocaleManager
-import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
@@ -24,19 +19,16 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
-import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
-import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.ActivityMainBinding
-import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
-import com.example.weatherapp.model.Repository
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
+import com.example.weatherapp.data.repository.Repository
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -52,7 +44,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) , DayWeatherLocalDataSourceImpl(this) ))
+        val settingFactory =SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(this) , DayWeatherLocalDataSourceImpl.getInstance(
+            WeatherDataBase.getInstance(this).getDayWeatherDao() ,
+            WeatherDataBase.getInstance(this).getFavouriteDao() , WeatherDataBase.getInstance(this).getAlertWeatherDao() ) ))
         settings = ViewModelProvider(this, settingFactory).get(SettingViewModel::class.java)
 
         Log.i("TAG", "onCreate:  ${settings.getSession()} ")

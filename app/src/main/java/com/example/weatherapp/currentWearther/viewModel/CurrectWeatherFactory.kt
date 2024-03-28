@@ -2,7 +2,7 @@ package com.example.weatherapp.currentWearther.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.model.IRepository
+import com.example.weatherapp.data.repository.IRepository
 
 
 @Suppress("UNCHECKED_CAST")

@@ -30,4 +30,11 @@
     <string name="add_location">add location</string>
     <string name="change_location">change location</string>
     <string name="map">Map</string>
+    <string name="ok">ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="From">"From : "</string>
+    <string name="to">"to : "</string>
+    <string name="alarm">alarm</string>
+    <string name="notification">notification</string>
+    <string name="Alert">Alert</string>
 </resources>

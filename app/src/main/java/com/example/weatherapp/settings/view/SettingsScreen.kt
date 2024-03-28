@@ -8,10 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
 import com.example.weatherapp.databinding.FragmentSettingsScreenBinding
-import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
-import com.example.weatherapp.model.Repository
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
+import com.example.weatherapp.data.repository.Repository
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 
@@ -37,8 +38,10 @@ class SettingsScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-         val factory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireActivity())))
-         settingViewModel = ViewModelProvider(requireActivity() , factory).get(SettingViewModel::class.java)
+         val factory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(
+             WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,
+             WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
+        settingViewModel = ViewModelProvider(requireActivity() , factory).get(SettingViewModel::class.java)
 
 
 

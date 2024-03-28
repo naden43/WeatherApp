@@ -3,9 +3,9 @@ package com.example.weatherapp.currentWearther.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.model.Data
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.IRepository
+import com.example.weatherapp.data.model.Data
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.repository.IRepository
 import com.example.weatherapp.network.ApiStatus
 
 import kotlinx.coroutines.Dispatchers
@@ -148,7 +148,7 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
         return currentHourTimeStamp
     }
 
-    fun reArrangeList(list:MutableList<Data> , currentHourTimeStamp:Int ) : MutableList<Data>{
+    fun reArrangeList(list:MutableList<Data>, currentHourTimeStamp:Int ) : MutableList<Data>{
         var i:Int = 0
         while (i <= currentHourTimeStamp && currentHourTimeStamp!=7 && currentHourTimeStamp!=0){
             val temp = list[i]

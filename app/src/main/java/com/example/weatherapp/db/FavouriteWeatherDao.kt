@@ -5,8 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.FavouriteWeather
+import com.example.weatherapp.data.model.FavouriteWeather
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,9 +16,9 @@ interface FavouriteWeatherDao {
     @Delete
     fun deleteFavourite(favouriteWeather: FavouriteWeather)
     @Query("SELECT * FROM fav_weather WHERE lon = :lon AND lat = :lat" )
-    fun getFavourite(lon: Double , lat:Double): Flow<FavouriteWeather>
+    fun getFavourite(lon: Double , lat:Double): FavouriteWeather
 
     @Query("SELECT * FROM fav_weather " )
-    fun getFavourites(): Flow<List<FavouriteWeather>>
+    fun getFavourites(): List<FavouriteWeather>
 
 }

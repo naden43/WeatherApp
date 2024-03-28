@@ -3,16 +3,16 @@ package com.example.weatherapp.favourite.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.FavouriteWeather
-import com.example.weatherapp.model.IRepository
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
+import com.example.weatherapp.data.repository.IRepository
 import com.example.weatherapp.network.ApiStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class FavouriteViewModel(var repo:IRepository) : ViewModel() {
+class FavouriteViewModel(var repo: IRepository) : ViewModel() {
 
     private var _favPlaces: MutableStateFlow<MutableList<FavouriteWeather>> = MutableStateFlow<MutableList<FavouriteWeather>>(
         mutableListOf())

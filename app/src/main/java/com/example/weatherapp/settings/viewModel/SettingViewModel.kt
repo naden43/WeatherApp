@@ -2,9 +2,7 @@ package com.example.weatherapp.settings.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.IRepository
-import com.example.weatherapp.network.ApiStatus
+import com.example.weatherapp.data.repository.IRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

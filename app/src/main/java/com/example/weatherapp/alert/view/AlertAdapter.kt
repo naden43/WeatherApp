@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.databinding.AlertItemBinding
-import com.example.weatherapp.model.AlertWeather
+import com.example.weatherapp.data.model.AlertWeather
 
 class AlertAdapter  (var context: Context , var listener: (AlertWeather) -> Unit) : ListAdapter<AlertWeather, AlertViewHolder>(
     AlertWeatherDiffUtil()

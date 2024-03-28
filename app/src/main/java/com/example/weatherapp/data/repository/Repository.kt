@@ -1,18 +1,22 @@
-package com.example.weatherapp.model
+package com.example.weatherapp.data.repository
 
-import com.example.weatherapp.network.WeatherRemoteDataSource
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSource
+import com.example.weatherapp.data.local.setting.SettingLocalDataSource
+import com.example.weatherapp.data.model.AlertWeather
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
+import com.example.weatherapp.data.remote.WeatherRemoteDataSource
 import kotlinx.coroutines.flow.Flow
-import retrofit2.Response
 
-class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSettings:SettingLocalDataSource , var localWeather:DayWeatherLocalDataSource ) : IRepository{
+class Repository (var remoteWeather: WeatherRemoteDataSource, var localSettings: SettingLocalDataSource, var localWeather: DayWeatherLocalDataSource) :
+    IRepository {
 
 
 
     companion object{
-        var INSTANCE:Repository? = null
+        var INSTANCE: Repository? = null
 
-        fun Instance(remoteWeather: WeatherRemoteDataSource, localSettings:SettingLocalDataSource , localWeather: DayWeatherLocalDataSource):Repository {
+        fun Instance(remoteWeather: WeatherRemoteDataSource, localSettings: SettingLocalDataSource, localWeather: DayWeatherLocalDataSource): Repository {
             return INSTANCE ?: synchronized(this) {
                 val tempInstance = Repository(remoteWeather , localSettings , localWeather)
                 INSTANCE = tempInstance
@@ -29,9 +33,7 @@ class Repository (var remoteWeather: WeatherRemoteDataSource ,  var localSetting
         return remoteWeather.getWeather(lat , lon , lang)
     }
 
-    override fun getFavWeather(lat:Double, lon:Double , lang:String): Flow<FavouriteWeather> {
-        return remoteWeather.getFavWeather(lat , lon , lang)
-    }
+
     override fun getWeather(lat:Double, lon:Double , lang:String , unit:String): Flow<DayWeather> {
         return remoteWeather.getWeather(lat , lon , lang , unit)
     }

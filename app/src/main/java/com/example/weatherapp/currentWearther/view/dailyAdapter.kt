@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherapp.databinding.DailyItemBinding
-import com.example.weatherapp.model.Data
+import com.example.weatherapp.data.model.Data
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

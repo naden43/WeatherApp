@@ -5,8 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.weatherapp.model.AlertWeather
-import com.example.weatherapp.model.FavouriteWeather
+import com.example.weatherapp.data.model.AlertWeather
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,6 +19,6 @@ interface AlertWeatherDao {
     fun getFavourite(lon: Double , lat:Double): Flow<FavouriteWeather>*/
 
     @Query("SELECT * FROM alert_weather " )
-    fun getAlerts(): Flow<List<AlertWeather>>
+    fun getAlerts(): List<AlertWeather>
 
 }

@@ -10,10 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.weatherapp.databinding.FragmentMapBinding
-import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
-import com.example.weatherapp.model.Repository
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
+import com.example.weatherapp.data.repository.Repository
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.google.android.gms.maps.GoogleMap
@@ -44,7 +45,9 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireActivity()) ))
+        val settingFactory = SettingViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(
+            WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,
+            WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         settings = ViewModelProvider(requireActivity() , settingFactory).get(SettingViewModel::class.java)
 
     }

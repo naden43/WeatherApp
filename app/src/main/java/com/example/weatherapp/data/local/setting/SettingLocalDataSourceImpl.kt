@@ -1,9 +1,10 @@
-package com.example.weatherapp.model
+package com.example.weatherapp.data.local.setting
 
 import android.content.Context
 import android.content.SharedPreferences
 
-class SettingLocalDataSourceImpl private constructor(var context: Context) : SettingLocalDataSource {
+class SettingLocalDataSourceImpl private constructor(var context: Context) :
+    SettingLocalDataSource {
 
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
@@ -22,8 +23,8 @@ class SettingLocalDataSourceImpl private constructor(var context: Context) : Set
 
     companion object{
         var INSTANCE : SettingLocalDataSourceImpl? = null
-        fun getInstance(context: Context): SettingLocalDataSourceImpl{
-            return INSTANCE?: synchronized(this){
+        fun getInstance(context: Context): SettingLocalDataSourceImpl {
+            return INSTANCE ?: synchronized(this){
                 val instance = SettingLocalDataSourceImpl(context)
                 INSTANCE = instance
                 instance

@@ -13,11 +13,12 @@ import androidx.navigation.Navigation
 import com.example.weatherapp.databinding.FragmentFavouriteScreenBinding
 import com.example.weatherapp.favourite.viewModel.FavouriteViewModel
 import com.example.weatherapp.favourite.viewModel.FavouriteViewModelFactory
-import com.example.weatherapp.model.DayWeatherLocalDataSourceImpl
-import com.example.weatherapp.model.FavouriteWeather
-import com.example.weatherapp.model.Repository
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
-import com.example.weatherapp.network.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
+import com.example.weatherapp.data.model.FavouriteWeather
+import com.example.weatherapp.data.repository.Repository
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.db.WeatherDataBase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +46,9 @@ class FavouriteScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val factory = FavouriteViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(requireContext()) ))
+        val factory = FavouriteViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(
+            WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,
+            WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         favouriteViewModel = ViewModelProvider(requireActivity() , factory).get(FavouriteViewModel::class.java)
 
         if (arguments != null)

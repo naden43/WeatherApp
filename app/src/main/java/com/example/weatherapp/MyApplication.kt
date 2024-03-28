@@ -1,7 +1,7 @@
 import android.app.Application
 import android.util.Log
-import com.example.weatherapp.model.SettingLocalDataSource
-import com.example.weatherapp.model.SettingLocalDataSourceImpl
+import com.example.weatherapp.data.local.setting.SettingLocalDataSource
+import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
 
 class MyApplication : Application() {
 

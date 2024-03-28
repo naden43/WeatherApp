@@ -1,9 +1,8 @@
-package com.example.weatherapp.network
+package com.example.weatherapp.data.remote
 
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.FavouriteWeather
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
 import kotlinx.coroutines.flow.Flow
-import retrofit2.Response
 
 interface WeatherRemoteDataSource {
 
@@ -12,5 +11,4 @@ interface WeatherRemoteDataSource {
      fun getWeather(lat:Double , lon:Double , lang:String , unit:String): Flow<DayWeather>
 
 
-     fun getFavWeather(lat: Double, lon: Double, lang: String): Flow<FavouriteWeather>
 }

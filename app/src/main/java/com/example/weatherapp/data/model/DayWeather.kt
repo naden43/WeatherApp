@@ -1,4 +1,4 @@
-package com.example.weatherapp.model
+package com.example.weatherapp.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,13 +11,13 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "day_weather")
 data class DayWeather(
     @TypeConverters(DataListConverter::class)
-    var list: MutableList<Data> = mutableListOf() ,
+    var list: MutableList<Data> = mutableListOf(),
 
     @TypeConverters(CityConverter::class)
-    val city: City = City() ,
+    val city: City  = City(),
 
     @PrimaryKey
-    var lang:String
+    var lang:String = String()
 )
 
 @Entity(tableName = "fav_weather", primaryKeys = ["lon", "lat"])
@@ -36,10 +36,10 @@ data class AlertWeather(
 )
 class City{
 
-    var name = ""
+    var name = String()
     var sunrise = 0
     var sunset = 0
-    var coord:Coord = Coord()
+    var coord: Coord = Coord()
 }
 
 class Coord{
@@ -70,16 +70,16 @@ class Main {
 }
 
 data class Data(
-    var dt:Long ,
-    var main:Main ,
-    var weather:List<Weather> ,
-    var clouds:Clouds ,
-    var wind:Wind ,
-    var visibility: Int ,
-    var pop: Double ,
-    var rain:Rain ,
-    var dt_txt:String ,
-    var snow:Snow  = Snow() ,
+    var dt:Long,
+    var main: Main,
+    var weather:List<Weather>,
+    var clouds: Clouds,
+    var wind: Wind,
+    var visibility: Int,
+    var pop: Double,
+    var rain: Rain,
+    var dt_txt:String,
+    var snow: Snow = Snow(),
     var currentTime:Boolean = false
 
 )

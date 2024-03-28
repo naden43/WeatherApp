@@ -1,5 +1,8 @@
-package com.example.weatherapp.model
+package com.example.weatherapp.data.repository
 
+import com.example.weatherapp.data.model.AlertWeather
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
 import kotlinx.coroutines.flow.Flow
 
 interface IRepository {
@@ -38,7 +41,6 @@ interface IRepository {
     fun deleteFavourite(favouriteWeather: FavouriteWeather)
     fun getFavourite(lon: Double, lat: Double): Flow<FavouriteWeather>
     fun getFavourites(): Flow<List<FavouriteWeather>>
-    fun getFavWeather(lat: Double, lon: Double, lang: String): Flow<FavouriteWeather>
     fun insertAlert(alertWeather: AlertWeather)
     fun deleteAlert(alertWeather: AlertWeather)
     fun getAlerts(): Flow<List<AlertWeather>>

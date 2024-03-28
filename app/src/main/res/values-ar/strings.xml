@@ -30,6 +30,12 @@
     <string name="add_location">اختر</string>
     <string name="map">الخريطة</string>
     <string name="change_location">تغيير الموقع</string>
-
+    <string name="cancel">الغاء</string>
+    <string name="notification">اشعار</string>
+    <string name="From">"من : "</string>
+    <string name="ok">حفظ </string>
+    <string name="to">"الي : "</string>
+    <string name="alarm">منبه</string>
+    <string name="Alert">Alert</string>
 
 </resources>

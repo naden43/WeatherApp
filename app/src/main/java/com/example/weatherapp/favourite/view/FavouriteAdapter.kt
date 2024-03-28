@@ -1,7 +1,6 @@
 package com.example.weatherapp.favourite.view
 
 import android.content.Context
-import android.sax.EndTextElementListener
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,15 +8,8 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.example.weatherapp.databinding.DailyItemBinding
 import com.example.weatherapp.databinding.FavItemBinding
-import com.example.weatherapp.model.Data
-import com.example.weatherapp.model.DayWeather
-import com.example.weatherapp.model.FavouriteWeather
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import com.example.weatherapp.data.model.FavouriteWeather
 
 class FavouriteAdapter
     (var context: Context , var listener: (FavouriteWeather) -> Unit) : ListAdapter<FavouriteWeather, FavouriteViewHolder>(

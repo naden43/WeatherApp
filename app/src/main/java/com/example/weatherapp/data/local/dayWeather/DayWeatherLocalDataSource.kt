@@ -1,5 +1,8 @@
-package com.example.weatherapp.model
+package com.example.weatherapp.data.local.dayWeather
 
+import com.example.weatherapp.data.model.AlertWeather
+import com.example.weatherapp.data.model.DayWeather
+import com.example.weatherapp.data.model.FavouriteWeather
 import kotlinx.coroutines.flow.Flow
 
 
