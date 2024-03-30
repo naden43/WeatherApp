@@ -121,7 +121,6 @@ class AlertWorker(context: Context , parameters: WorkerParameters): Worker(conte
 
 
         //dao.deleteAlert()
-        return Result.success()
     }
 
     fun createNotification(discription : String){

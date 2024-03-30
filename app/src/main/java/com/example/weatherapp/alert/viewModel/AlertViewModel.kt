@@ -53,7 +53,7 @@ class AlertViewModel(var repo : IRepository) : ViewModel() {
     fun addAlert(lat:Double , long:Double  , date:String , time:String , action:Int , context:Context)
     {
 
-        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH)
         val dateTimeString = "$date $time"
         val dateTime: Date = dateTimeFormat.parse(dateTimeString) ?: Date()
         Log.i("TAG", "addAlert: $dateTime ")
@@ -69,7 +69,7 @@ class AlertViewModel(var repo : IRepository) : ViewModel() {
                     Pair(Constants.LONGITUDE , long),
                     Pair(Constants.LATITUDE , lat),
                     Pair(Constants.LANGUAGE , repo.getLanguage()),
-                    Pair(Constants.ACTION , 2)
+                    Pair(Constants.ACTION , action)
                 )
             )
             .setInitialDelay(dateTime.time - System.currentTimeMillis(), TimeUnit.MILLISECONDS)

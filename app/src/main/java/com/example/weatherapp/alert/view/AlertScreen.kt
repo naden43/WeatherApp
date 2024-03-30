@@ -3,8 +3,13 @@ package com.example.weatherapp.alert.view
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,8 +23,10 @@ import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +44,8 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class AlertScreen : Fragment() {
@@ -64,13 +73,13 @@ class AlertScreen : Fragment() {
         val factory = AlertViewModelFactory(Repository.Instance(WeatherRemoteDataSourceImpl.Instance() , SettingLocalDataSourceImpl.getInstance(requireActivity()) , DayWeatherLocalDataSourceImpl.getInstance(WeatherDataBase.getInstance(requireContext()).getDayWeatherDao() ,WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         alertViewModel = ViewModelProvider(requireActivity() , factory).get(AlertViewModel::class.java)
 
+        checkConnectivity()
         if (arguments != null)
         {
             var latitude = arguments?.getString("latitude")?.toDouble() ?: 0.0
             var longitude =  arguments?.getString("longitude")?.toDouble() ?: 0.0
 
             if(latitude!=0.0 && longitude!=0.0) {
-
 
                 val dialog = Dialog(requireActivity())
                 var action = 1
@@ -185,8 +194,29 @@ class AlertScreen : Fragment() {
         }
 
         alertAdapter = AlertAdapter(requireContext())
-        {
-            alertViewModel.deleteAlert(it)
+        {alert ->
+            val dialog = Dialog(requireActivity())
+            dialog.setContentView(R.layout.confirm_deletion)
+            dialog.window!!
+                .setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            dialog.window!!.setBackgroundDrawable(requireActivity().getDrawable(R.drawable.custom_dialog))
+
+            val okBtn = dialog.findViewById<Button>(R.id.confirmBtn)
+            val cancelBtn = dialog.findViewById<Button>(R.id.cancelBtn)
+
+
+            okBtn.setOnClickListener{
+                alertViewModel.deleteAlert(alert)
+                dialog.dismiss()
+            }
+
+            cancelBtn.setOnClickListener{
+                dialog.dismiss()
+            }
+            dialog.show()
         }
 
         binding.alertList.adapter = alertAdapter
@@ -221,5 +251,65 @@ class AlertScreen : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
 
+        val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+
+                runBlocking {
+                    withContext(Dispatchers.Main) {
+                        binding.networkLayout.visibility = View.GONE
+                        binding.alertLayout.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                runBlocking{
+                    withContext(Dispatchers.Main)
+                    {
+                        binding.networkLayout.visibility = View.VISIBLE
+                        binding.alertLayout.visibility= View.GONE
+                    }
+                }
+
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                runBlocking{
+                    withContext(Dispatchers.Main)
+                    {
+                        Log.i("TAG", "onLost: nnnn ")
+                        binding.networkLayout.visibility = View.VISIBLE
+                        binding.alertLayout.visibility= View.GONE
+                    }
+                }
+            }
+
+        }
+
+
+        val connectivityManager =
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequest, networkCallback)
+    }
+
+
+    private fun checkConnectivity(){
+        val connectivityManager =
+            requireActivity().getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if(!(activeNetworkInfo != null && activeNetworkInfo.isConnected)){
+            binding.networkLayout.visibility = View.VISIBLE
+            binding.alertLayout.visibility= View.GONE
+        }
+
+    }
 }

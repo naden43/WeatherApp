@@ -37,4 +37,19 @@
     <string name="alarm">alarm</string>
     <string name="notification">notification</string>
     <string name="Alert">Alert</string>
+    <string name="celcius_symbol">C</string>
+    <string name="fahrenheit_symbol">F</string>
+    <string name="kelvin_symbol">K</string>
+    <string name="now">Now</string>
+    <string name="wind_meter_sec">meter/sec</string>
+    <string name="wind_miles_hour">miles/hour</string>
+    <string name="pressure_unit">mbar</string>
+    <string name="gps_msg">"I can not find your location..."</string>
+    <string name="permission">"open permission "</string>
+    <string name="ask_delete">Are you sure you want to delete it ?</string>
+    <string name="delete">Delete</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+
 </resources>

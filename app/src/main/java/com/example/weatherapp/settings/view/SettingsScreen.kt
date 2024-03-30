@@ -1,9 +1,16 @@
 package com.example.weatherapp.settings.view
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
@@ -15,6 +22,9 @@ import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
 import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class SettingsScreen : Fragment() {
 
@@ -43,6 +53,7 @@ class SettingsScreen : Fragment() {
              WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         settingViewModel = ViewModelProvider(requireActivity() , factory).get(SettingViewModel::class.java)
 
+        checkConnectivity()
 
 
 
@@ -228,6 +239,67 @@ class SettingsScreen : Fragment() {
             val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
             action.id = 1
             findNavController(binding.root).navigate(action)
+        }
+
+    }
+   override fun onStart() {
+        super.onStart()
+
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+
+        val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+
+                runBlocking {
+                    withContext(Dispatchers.Main) {
+                        binding.networkLayout.visibility = View.GONE
+                        binding.settingLayout.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                runBlocking{
+                    withContext(Dispatchers.Main)
+                    {
+                        Log.i("TAG", "onLost: nnnn ")
+                        binding.networkLayout.visibility = View.VISIBLE
+                        binding.settingLayout.visibility= View.GONE
+                    }
+                }
+
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                runBlocking{
+                    withContext(Dispatchers.Main)
+                    {
+                        Log.i("TAG", "onLost: nnnn ")
+                        binding.networkLayout.visibility = View.VISIBLE
+                        binding.settingLayout.visibility= View.GONE
+                    }
+                }
+            }
+        }
+
+
+        val connectivityManager =
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequest, networkCallback)
+    }
+
+    private fun checkConnectivity(){
+        val connectivityManager =
+            requireActivity().getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if(!(activeNetworkInfo != null && activeNetworkInfo.isConnected)){
+            binding.networkLayout.visibility = View.VISIBLE
+            binding.settingLayout.visibility= View.GONE
         }
 
     }

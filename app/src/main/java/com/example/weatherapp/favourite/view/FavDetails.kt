@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.weatherapp.R
 import com.example.weatherapp.currentWearther.view.DailyWeatherAdapter
 import com.example.weatherapp.currentWearther.view.DayWeatherAdapter
 import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
@@ -85,19 +86,15 @@ class FavDetails : Fragment() {
                 when(result){
 
                     is ApiStatus.Success -> {
-
                         binding.loader.visibility = View.GONE
-                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                        val addresses = geocoder.getFromLocation(latitude!!, longitude!!, 1)
-                        withContext(Dispatchers.Main) {
 
+                        withContext(Dispatchers.Main) {
 
                             var returnedData = result.data
 
                             var currentHourTimeStamp = currentWeather.getCurrentTimeStamp()
 
-
-                            returnedData.list = currentWeather.reArrangeList(returnedData.list.toMutableList() , currentHourTimeStamp)
+                            //currentWeather.reArrangeList(returnedData.list.toMutableList() , currentHourTimeStamp)
 
                             returnedData.list.get(currentHourTimeStamp).currentTime = true
 
@@ -107,41 +104,22 @@ class FavDetails : Fragment() {
                                 .into(binding.weatherImage)
 
                             // display my location
-                            if (addresses!!.isNotEmpty()) {
-                                val cityName = addresses[0].locality
-                                val countryName = addresses[0].countryName
-                                binding.locationTxt.text = "$cityName, $countryName"
-                            }
-                            else {
-                                binding.locationTxt.text =
-                                    returnedData.city.name //currentWeather.getLocationText(locationtext)
-                            }
+                            binding.locationTxt.text = if(returnedData.city.name != ""){ returnedData.city.name} else{"UnKnown"} //currentWeather.getLocationText(locationtext)
+
 
                             // display the date
-                            binding.timeTxt.text = currentWeather.getDateString(returnedData.list.get(currentHourTimeStamp).dt_txt)
+                            binding.timeTxt.text = currentWeather.getDateString(returnedData.list.get(0).dt_txt)
 
 
                             binding.descriptionTxt.text =
                                 returnedData.list.get(currentHourTimeStamp).weather.get(0).description
 
-                            var symbol  = currentWeather.getUnitSymbol(settings.getUnit())
-                            // i am now in which time stamp
-                            /*when(settings.getLanguage() == "ar")
-                            {
-                                (symbol == "C") -> {
-                                    symbol = "س"
-                                }
-                                (symbol == "F") -> {
-                                    symbol = "ف"
-                                }
-                                else -> {
-                                    symbol = "ك"
-                                }
-                            }*/
+                            var symbol  = currentWeather.getUnitSymbol(settings.getUnit() , requireContext())
+
                             binding.tempTxt.text =
                                 " ${returnedData.list.get(currentHourTimeStamp).main.temp.toInt().toString()}  $symbol"
 
-                            val weatherAdapter = DayWeatherAdapter(requireActivity())
+                            val weatherAdapter = DayWeatherAdapter(requireActivity() , symbol)
                             weatherAdapter.submitList(returnedData.list.take(8))
                             binding.dayForeCastRecycularView.apply {
                                 adapter = weatherAdapter
@@ -168,30 +146,36 @@ class FavDetails : Fragment() {
                                 "${returnedData.list.get(currentHourTimeStamp).main.humidity} %"
 
                             binding.pressureTxt.text =
-                                returnedData.list.get(currentHourTimeStamp).main.pressure.toString() + " mbar"
+                                "${returnedData.list.get(currentHourTimeStamp).main.pressure} ${getString(
+                                    R.string.pressure_unit)}"
 
                             if(settings.getWindSpeed() == "meter/sec" && settings.getUnit() == "imperial")
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed * 0.44704).toInt()}  meter/sec"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed * 0.44704).toInt()}  ${getString(
+                                        R.string.wind_meter_sec)}"
                             }
                             else if(settings.getWindSpeed() == "meter/sec")
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  meter/sec"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  ${getString(
+                                        R.string.wind_meter_sec)}"
                             }
                             else if(settings.getWindSpeed() == "miles/hour" && (settings.getUnit() == "metric" || settings.getUnit() == ""))
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed/ 0.44704).toInt()}  miles/hour"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed/ 0.44704).toInt()}  ${getString(
+                                        R.string.wind_miles_hour)}"
                             }
                             else{
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  miles/hour"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  ${getString(
+                                        R.string.wind_miles_hour)}"
                             }
 
 
                         }
+
                     }
                     is ApiStatus.Failure -> {
                         // show view of notwerk conictivity

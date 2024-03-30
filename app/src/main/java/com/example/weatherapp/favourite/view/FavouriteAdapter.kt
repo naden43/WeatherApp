@@ -12,7 +12,7 @@ import com.example.weatherapp.databinding.FavItemBinding
 import com.example.weatherapp.data.model.FavouriteWeather
 
 class FavouriteAdapter
-    (var context: Context , var listener: (FavouriteWeather) -> Unit) : ListAdapter<FavouriteWeather, FavouriteViewHolder>(
+    (var context: Context , var listener: (FavouriteWeather) -> Unit ,var navListener : (FavouriteWeather) -> Unit ) : ListAdapter<FavouriteWeather, FavouriteViewHolder>(
     FavouriteWeatherDiffUtil()
 ){
 
@@ -28,17 +28,14 @@ class FavouriteAdapter
         val currentObj = getItem(position)
 
         Log.i("TAG", "onBindViewHolder: here")
-        binding.countryNameTxt.text = currentObj.countryName
+        binding.countryNameTxt.text = truncateText(currentObj.countryName)
 
         binding.deleteBtn.setOnClickListener {
             listener(currentObj)
         }
 
         binding.itemFav.setOnClickListener {
-            val action = FavouriteScreenDirections.actionFavouriteScreenToFavDetails()
-            action.latitude = currentObj.lat.toString()
-            action.longitude = currentObj.lon.toString()
-            Navigation.findNavController(binding.root).navigate(action)
+            navListener(currentObj)
         }
 
     }
@@ -53,6 +50,14 @@ class FavouriteWeatherDiffUtil : DiffUtil.ItemCallback<FavouriteWeather>(){
 
     override fun areContentsTheSame(oldItem: FavouriteWeather, newItem: FavouriteWeather): Boolean {
         return oldItem == newItem
+    }
+}
+
+fun truncateText(text: String): String {
+    return if (text.length > 12) {
+        "${text.substring(0, 12)}..."
+    } else {
+        text
     }
 }
 

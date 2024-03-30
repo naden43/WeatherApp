@@ -42,6 +42,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
     var marker: Marker? = null
     var country:String? = null
     lateinit var settings : SettingViewModel
+    lateinit var lang:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,6 +51,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
             WeatherDataBase.getInstance(requireContext()).getFavouriteDao() , WeatherDataBase.getInstance(requireContext()).getAlertWeatherDao() ) ))
         settings = ViewModelProvider(requireActivity() , settingFactory).get(SettingViewModel::class.java)
 
+        lang = settings.getLanguage()
     }
 
     override fun onCreateView(
@@ -78,7 +80,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
                 lifecycleScope.launch(Dispatchers.IO){
 
                     if(arguments?.getInt("id") == 1) {
-                        settings.deleteCashedData()
+                        settings.deleteDataBase()
                         settings.setSession(false)
                         withContext(Dispatchers.Main) {
                             settings.setLatitude(latitude!!)
@@ -154,26 +156,33 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
 
 
 
+    suspend fun getCountryName(latitude: Double, longitude: Double): String {
+        val url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&accept-language=${settings.getLanguage()}"
+
+        return withContext(Dispatchers.IO) {
+            val client = OkHttpClient()
+            val request = Request.Builder().url(url).build()
+
+            try {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    throw IOException("Unexpected code $response")
+                }
+
+                val responseBody = response.body()?.string()
 
 
-}
-
-fun getCountryName(latitude: Double, longitude: Double): String {
-    val url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude"
-
-    val client = OkHttpClient()
-    val request = Request.Builder().url(url).build()
-
-    client.newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-            throw IOException("Unexpected code $response")
+                val jsonObject = JSONObject(responseBody)
+                val address = jsonObject.getJSONObject("address")
+                val city = jsonObject.optString("name" , "UnKnown")
+                city
+            } catch (e: IOException) {
+                e.printStackTrace()
+                ""
+            }
         }
-
-        val responseBody = response.body()?.string()
-
-        val jsonObject = JSONObject(responseBody)
-        val address = jsonObject.getJSONObject("address")
-        val city = address.optString("city", "")
-        return address.optString("city", "Unknown")
     }
+
+
 }
+

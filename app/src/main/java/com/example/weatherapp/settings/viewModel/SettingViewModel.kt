@@ -2,6 +2,7 @@ package com.example.weatherapp.settings.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherapp.data.model.DayWeather
 import com.example.weatherapp.data.repository.IRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,18 +15,6 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
     // language observation
     private var _language: MutableStateFlow<String> = MutableStateFlow<String>(repo.getLanguage())
     val language : StateFlow<String> = _language
-
-    // unit observation
-    /*private var _unit: MutableStateFlow<String> = MutableStateFlow<String>(repo.getUnit())
-    val unit : StateFlow<String> = _unit
-
-    // wind speed observation
-    private var _wind: MutableStateFlow<String> = MutableStateFlow<String>(repo.getWindSpeed())
-    val wind: StateFlow<String> = _wind
-
-    // location method observation
-    private var _method: MutableStateFlow<String> = MutableStateFlow<String>(repo.getLocationMethod())
-    val method : StateFlow<String> = _method*/
 
     fun getLanguage() :String
     {
@@ -64,6 +53,8 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
             repo.deleteAllDayWeather()
         }
     }
+
+
 
     fun setWindSpeed(wind:String)
     {
@@ -104,11 +95,6 @@ class SettingViewModel(var repo: IRepository): ViewModel() {
     fun getSession() : Boolean
     {
         return repo.getSession()
-    }
-
-    fun deleteCashedData()
-    {
-        repo.deleteAllDayWeather()
     }
 
 }

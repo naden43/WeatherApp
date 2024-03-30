@@ -9,13 +9,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.weatherapp.R
 import com.example.weatherapp.databinding.HourItemBinding
 import com.example.weatherapp.data.model.Data
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-class DayWeatherAdapter(var context: Context ) : ListAdapter<Data, ViewHolder>(DayWeatherDiffUtil()){
+class DayWeatherAdapter(var context: Context  , var symbol:String) : ListAdapter<Data, ViewHolder>(DayWeatherDiffUtil()){
 
     lateinit var binding: HourItemBinding
 
@@ -30,14 +31,15 @@ class DayWeatherAdapter(var context: Context ) : ListAdapter<Data, ViewHolder>(D
 
         val dateTime = LocalDateTime.parse(currentObj.dt_txt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         val formattedDate = dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-        if(currentObj.currentTime){
-            holder.binding.txtTime.text = "Now"
+        if(position==0){
+            holder.binding.txtTime.text = context.getString(R.string.now)
         }
-        else
-        {
+        else {
             holder.binding.txtTime.text = formattedDate
+
         }
-        holder.binding.txtTemp.text = currentObj.main.temp.toInt().toString()
+
+        holder.binding.txtTemp.text = "${currentObj.main.temp.toInt()} \u00B0 ${symbol}"
         Glide.with(context).load("https://openweathermap.org/img/wn/${currentObj.weather.get(0).icon}@4x.png")
             .apply(RequestOptions().override(200, 200)).into(holder.binding.conditionImage)
     }

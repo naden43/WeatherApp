@@ -36,6 +36,17 @@
     <string name="ok">حفظ </string>
     <string name="to">"الي : "</string>
     <string name="alarm">منبه</string>
-    <string name="Alert">Alert</string>
+    <string name="Alert">المنبه</string>
+    <string name="celcius_symbol">س</string>
+    <string name="fahrenheit_symbol">ف</string>
+    <string name="kelvin_symbol">ك</string>
+    <string name="now">الأن</string>
+    <string name="wind_meter_sec">م/ث</string>
+    <string name="wind_miles_hour">م/س</string>
+    <string name="pressure_unit">ميللي بار</string>
+    <string name="gps_msg">"I can not find your location...\nyou can go to settings and choose your location\nfrom map or you can press button to give me a permission "</string>
+    <string name="delete">Delete</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

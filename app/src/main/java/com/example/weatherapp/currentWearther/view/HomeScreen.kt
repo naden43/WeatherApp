@@ -8,6 +8,11 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -17,9 +22,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.weatherapp.R
 import com.example.weatherapp.currentWearther.viewModel.CurrectWeatherFactory
 import com.example.weatherapp.currentWearther.viewModel.CurrentWeatherViewModel
 import com.example.weatherapp.databinding.FragmentHomeScreenBinding
@@ -41,6 +49,7 @@ import com.google.android.gms.location.Priority
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 
@@ -123,10 +132,11 @@ class HomeScreen : Fragment() {
 
 
 
+        binding.openPermissionBtn.setOnClickListener {
+            Log.i("TAG", "getWeatherByLocationType: 0 ")
 
-
-
-
+            getWeatherByLocationType()
+       }
 
 
 
@@ -138,6 +148,10 @@ class HomeScreen : Fragment() {
                     is ApiStatus.Success -> {
 
                         binding.loader.visibility = View.GONE
+                        binding.homeLayout.visibility = View.VISIBLE
+                        binding.networkLayout.visibility = View.GONE
+                        binding.loader.visibility = View.GONE
+
 
                         withContext(Dispatchers.Main) {
 
@@ -145,8 +159,7 @@ class HomeScreen : Fragment() {
 
                             var currentHourTimeStamp = currentWeather.getCurrentTimeStamp()
 
-
-                            returnedData.list = currentWeather.reArrangeList(returnedData.list.toMutableList() , currentHourTimeStamp)
+                            //currentWeather.reArrangeList(returnedData.list.toMutableList() , currentHourTimeStamp)
 
                             returnedData.list.get(currentHourTimeStamp).currentTime = true
 
@@ -156,34 +169,22 @@ class HomeScreen : Fragment() {
                                 .into(binding.weatherImage)
 
                             // display my location
-                            binding.locationTxt.text = returnedData.city.name //currentWeather.getLocationText(locationtext)
+                            binding.locationTxt.text = if(returnedData.city.name != ""){ returnedData.city.name} else{"UnKnown"} //currentWeather.getLocationText(locationtext)
 
 
                             // display the date
-                            binding.timeTxt.text = currentWeather.getDateString(returnedData.list.get(currentHourTimeStamp).dt_txt)
+                            binding.timeTxt.text = currentWeather.getDateString(returnedData.list.get(0).dt_txt)
 
 
                             binding.descriptionTxt.text =
                                 returnedData.list.get(currentHourTimeStamp).weather.get(0).description
 
-                            var symbol  = currentWeather.getUnitSymbol(settings.getUnit())
-                            // i am now in which time stamp
-                            /*when(settings.getLanguage() == "ar")
-                            {
-                                (symbol == "C") -> {
-                                    symbol = "س"
-                                }
-                                (symbol == "F") -> {
-                                    symbol = "ف"
-                                }
-                                else -> {
-                                    symbol = "ك"
-                                }
-                            }*/
+                            var symbol  = currentWeather.getUnitSymbol(settings.getUnit() , requireContext())
+
                             binding.tempTxt.text =
                                 " ${returnedData.list.get(currentHourTimeStamp).main.temp.toInt().toString()}  $symbol"
 
-                            val weatherAdapter = DayWeatherAdapter(requireActivity())
+                            val weatherAdapter = DayWeatherAdapter(requireActivity() , symbol)
                             weatherAdapter.submitList(returnedData.list.take(8))
                             binding.dayForeCastRecycularView.apply {
                                 adapter = weatherAdapter
@@ -210,41 +211,49 @@ class HomeScreen : Fragment() {
                                 "${returnedData.list.get(currentHourTimeStamp).main.humidity} %"
 
                             binding.pressureTxt.text =
-                                returnedData.list.get(currentHourTimeStamp).main.pressure.toString() + " mbar"
+                                "${returnedData.list.get(currentHourTimeStamp).main.pressure} ${getString(R.string.pressure_unit)}"
 
                             if(settings.getWindSpeed() == "meter/sec" && settings.getUnit() == "imperial")
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed * 0.44704).toInt()}  meter/sec"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed * 0.44704).toInt()}  ${getString(R.string.wind_meter_sec)}"
                             }
                             else if(settings.getWindSpeed() == "meter/sec")
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  meter/sec"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  ${getString(R.string.wind_meter_sec)}"
                             }
                             else if(settings.getWindSpeed() == "miles/hour" && (settings.getUnit() == "metric" || settings.getUnit() == ""))
                             {
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed/ 0.44704).toInt()}  miles/hour"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed/ 0.44704).toInt()}  ${getString(R.string.wind_miles_hour)}"
                             }
                             else{
                                 binding.windTxt.text =
-                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  miles/hour"
+                                    "${(returnedData.list.get(currentHourTimeStamp).wind.speed).toInt()}  ${getString(R.string.wind_miles_hour)}"
                             }
 
 
                         }
                     }
                     is ApiStatus.Failure -> {
-                        // show view of notwerk conictivity
+                        binding.loader.visibility = View.GONE
+                        binding.homeLayout.visibility = View.GONE
+                        binding.networkLayout.visibility = View.VISIBLE
+                        binding.loader.visibility = View.GONE
+
                     }
                     is ApiStatus.Loading -> {
 
                         binding.loader.visibility = View.VISIBLE
+                        binding.homeLayout.visibility = View.GONE
+                        binding.networkLayout.visibility = View.GONE
+                        binding.loader.visibility = View.GONE
+
+
 
                     }
 
-                    else -> {}
                 }
 
             }
@@ -257,18 +266,53 @@ class HomeScreen : Fragment() {
 
     override fun onStart() {
         super.onStart()
+
+
+        checkConnectivity()
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+
+            val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+
+                    runBlocking{
+                        withContext(Dispatchers.Main)
+                        {
+                            getWeatherByLocationType()
+                        }
+                    }
+                }
+
+            }
+
+            val connectivityManager =
+                requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            connectivityManager.requestNetwork(networkRequest, networkCallback)
+
+
+    }
+
+    fun getWeatherByLocationType()
+    {
         if(settings.getLocationMethod() == "MAP") {
 
             currentWeather.getWeather(settings.getLongitude(), settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
 
         }
         else{
+            Log.i("TAG", "getWeatherByLocationType: 1 ")
             if(settings.getSession())
             {
                 currentWeather.getWeather(settings.getLongitude()  , settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
             }
             else {
+                Log.i("TAG", "getWeatherByLocationType: 2 ")
+
                 if (checkPermission()) {
+                    Log.i("TAG", "getWeatherByLocationType: 3 ")
+
                     if (isLocationEnabled()) {
                         getLocation()
                     } else {
@@ -276,6 +320,8 @@ class HomeScreen : Fragment() {
 
                     }
                 } else {
+                    Log.i("TAG", "getWeatherByLocationType: 4 ")
+
                     requestPermissions(
                         arrayOf(
                             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -288,7 +334,6 @@ class HomeScreen : Fragment() {
         }
 
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -298,6 +343,18 @@ class HomeScreen : Fragment() {
         if(requestCode==REQUEST_CODE){
             if(grantResults.size >1 && (grantResults.get(0) == PackageManager.PERMISSION_GRANTED || grantResults.get(1)== PackageManager.PERMISSION_GRANTED)){
                 getLocation()
+                binding.loader.visibility = View.VISIBLE
+                binding.homeLayout.visibility = View.GONE
+                binding.networkLayout.visibility = View.GONE
+                binding.permission.visibility = View.GONE
+            }
+            else
+            {
+                binding.loader.visibility = View.GONE
+                binding.homeLayout.visibility = View.GONE
+                binding.networkLayout.visibility = View.GONE
+                binding.permission.visibility = View.VISIBLE
+
             }
         }
 
@@ -383,6 +440,15 @@ class HomeScreen : Fragment() {
                 }
             )
         }
+    }
+    private fun checkConnectivity(){
+        val connectivityManager =
+            requireActivity().getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if(!(activeNetworkInfo != null && activeNetworkInfo.isConnected)){
+            getWeatherByLocationType()
+        }
+
     }
 }
 

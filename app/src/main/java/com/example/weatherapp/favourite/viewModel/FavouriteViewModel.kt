@@ -65,20 +65,4 @@ class FavouriteViewModel(var repo: IRepository) : ViewModel() {
         }
     }
 
-    fun getList(list: List<ApiStatus<FavouriteWeather>>) : List<FavouriteWeather>
-    {
-        var resultList = mutableListOf<FavouriteWeather>()
-
-        Log.i("TAG", "getList: ${list.size} ")
-        for(item in list)
-        {
-            if(item is ApiStatus.Success) {
-                resultList.add(item.data)
-
-            }
-        }
-        return resultList
-    }
-
-
 }

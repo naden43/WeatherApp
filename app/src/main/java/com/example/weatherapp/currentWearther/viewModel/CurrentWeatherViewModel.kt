@@ -1,8 +1,10 @@
 package com.example.weatherapp.currentWearther.viewModel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.weatherapp.R
 import com.example.weatherapp.data.model.Data
 import com.example.weatherapp.data.model.DayWeather
 import com.example.weatherapp.data.repository.IRepository
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -115,7 +118,45 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
     fun getDataFromApi(lon:Double , lat:Double , lang:String  , unit: String)
     {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getWeather(lon, lat, lang).collect {
+            repo.getWeather(lon, lat, lang).catch {
+                repo.getDayForecast(lang).collect { data ->
+
+                    if(data !=null) {
+                        Log.i("TAG", "getWeather: get from db ")
+                        val currentDate = Calendar.getInstance().time
+
+                        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                        val currentDateString = dateFormat.format(currentDate)
+
+                        val inputApiFormat =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                        val date = inputApiFormat.parse(data.list.get(0).dt_txt)
+
+                        val dateString = outputFormat.format(date!!)
+
+                        if (currentDateString == dateString) {
+                            if (unit == "metric") {
+                                _weather.value =
+                                    ApiStatus.Success(convertTemperatureToCelsius(data))
+                            } else if (unit == "imperial") {
+                                _weather.value =
+                                    ApiStatus.Success(convertTemperatureToFahrenheit(data))
+
+                            } else {
+                                _weather.value = ApiStatus.Success(data)
+                            }
+
+                        } else {
+                            _weather.value = ApiStatus.Failure(it)
+                        }
+                    }
+                    else{
+                        _weather.value = ApiStatus.Failure(it)
+                    }
+                }
+            }.collect {
                 if(!repo.getSession())
                 {
                     repo.deleteAllDayWeather()
@@ -190,25 +231,25 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
             dateTime.format(
                 DateTimeFormatter.ofPattern(
                     "EEE, dd MMMM",
-                    Locale.ENGLISH
+                    Locale.getDefault()
                 )
             )
         return outputDateString
     }
 
-    fun getUnitSymbol(unit:String) : String
+    fun getUnitSymbol(unit:String , context: Context) : String
     {
         if(unit == "metric")
         {
-            return "C"
+            return context.getString(R.string.celcius_symbol)
         }
         else if(unit == "imperial")
         {
-            return "F"
+            return context.getString(R.string.fahrenheit_symbol)
         }
         else
         {
-            return "K"
+            return context.getString(R.string.kelvin_symbol)
         }
     }
 

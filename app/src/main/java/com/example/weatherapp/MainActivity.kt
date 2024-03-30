@@ -2,6 +2,7 @@ package com.example.weatherapp
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.Navigation
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.example.weatherapp.databinding.ActivityMainBinding
@@ -25,6 +27,7 @@ import com.example.weatherapp.data.repository.Repository
 import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
 import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
 import com.example.weatherapp.db.WeatherDataBase
+import com.example.weatherapp.favourite.view.FavouriteScreenDirections
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import com.google.android.material.navigation.NavigationView
@@ -121,34 +124,43 @@ class MainActivity : AppCompatActivity() {
                 destination: NavDestination,
                 arguments: Bundle?
             ) {
+
                 if(destination.id == R.id.favouriteScreen){
-                    fragText.text = getString(R.string.favourites)
-                    this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
-                    this@MainActivity.binding.fragText.visibility = View.VISIBLE
-                    this@MainActivity.binding.icon.visibility = View.VISIBLE
+                   // if (isNetworkAvailable()) {
+                        fragText.text = getString(R.string.favourites)
+                        this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
+                        this@MainActivity.binding.fragText.visibility = View.VISIBLE
+                        //this@MainActivity.binding.icon.visibility = View.VISIBLE
+                    //}
+                    /*else
+                    {
+                        fragText.text = getString(R.string.home)
+                        navController.navigate(R.id.homeScreen)
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                    }*/
                 }
                 else if(destination.id == R.id.homeScreen){
                     fragText.text = getString(R.string.home)
                     this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
                     this@MainActivity.binding.fragText.visibility = View.VISIBLE
-                    this@MainActivity.binding.icon.visibility = View.VISIBLE
+                    //this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else if(destination.id == R.id.alertScreen){
                     fragText.text = getString(R.string.alert)
                     this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
                     this@MainActivity.binding.fragText.visibility = View.VISIBLE
-                    this@MainActivity.binding.icon.visibility = View.VISIBLE
+                    //this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else if(destination.id == R.id.settingsScreen){
                     fragText.text = getString(R.string.settings)
                     this@MainActivity.binding.drawerIcon.visibility = View.VISIBLE
                     this@MainActivity.binding.fragText.visibility = View.VISIBLE
-                    this@MainActivity.binding.icon.visibility = View.VISIBLE
+                    //this@MainActivity.binding.icon.visibility = View.VISIBLE
                 }
                 else{
                     this@MainActivity.binding.drawerIcon.visibility = View.GONE
                     this@MainActivity.binding.fragText.visibility = View.GONE
-                    this@MainActivity.binding.icon.visibility = View.GONE
+                   // this@MainActivity.binding.icon.visibility = View.GONE
                 }
 
             }
@@ -156,6 +168,12 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
     fun changeLanguage()
     {
         Log.i("TAG", "onCreate:  ${settings.getLanguage()}")
