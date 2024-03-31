@@ -48,5 +48,7 @@
     <string name="delete">Delete</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="brand_name">SkyMood</string>
+    <string name="dismiss">Dismiss</string>
 
 </resources>

@@ -17,5 +17,6 @@
     <item
         android:id="@+id/alertScreen"
         android:icon="@drawable/alert"
+        android:iconTint="@color/button_color"
         android:title="@string/alert" />
 </menu>

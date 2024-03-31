@@ -50,8 +50,8 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
 
     fun getWeather(lon:Double , lat:Double , lang:String , unit:String , locationMethod:String) {
 
+        _weather.value = ApiStatus.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            _weather.value = ApiStatus.Loading
             if(repo.getSession() ){
                 repo.getDayForecast(lang).collect{data ->
 
@@ -117,6 +117,7 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
     }
     fun getDataFromApi(lon:Double , lat:Double , lang:String  , unit: String)
     {
+        _weather.value = ApiStatus.Loading
         viewModelScope.launch(Dispatchers.IO) {
             repo.getWeather(lon, lat, lang).catch {
                 repo.getDayForecast(lang).collect { data ->

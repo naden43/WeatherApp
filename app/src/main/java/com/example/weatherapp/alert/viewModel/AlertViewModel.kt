@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -35,11 +36,36 @@ class AlertViewModel(var repo : IRepository) : ViewModel() {
     {
         viewModelScope.launch(Dispatchers.IO){
             repo.getAlerts().collect{
-                _alerts.value = it.toMutableList()
+                _alerts.value = filterData(it.toMutableList())
             }
         }
     }
 
+    fun filterData(alerts:MutableList<AlertWeather>) : MutableList<AlertWeather>
+    {
+
+        var ret  = mutableListOf<AlertWeather>()
+        for(item in alerts)
+        {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            val currentDate = Date()
+
+
+            val theDate = dateFormat.parse("${item.date} ${item.time}")
+
+            if(theDate> currentDate)
+            {
+                ret.add(item)
+            }
+            else
+            {
+                repo.deleteAlert(item)
+            }
+        }
+
+        return ret
+
+    }
     fun deleteAlert(alertWeather: AlertWeather){
 
         val requestId = UUID.fromString(alertWeather.requestId)

@@ -126,6 +126,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
     implementation("com.airbnb.android:lottie:3.4.0")
-
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
 }

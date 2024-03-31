@@ -117,12 +117,23 @@ class FavouriteScreen : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             favouriteViewModel.favPlaces.collect{
 
-                Log.i("TAG", "onViewCreated:  collect list")
-                //var list = favouriteViewModel.getList(it)
-                withContext(Dispatchers.Main)
-                {
-                    Log.i("TAG", "onViewCreated:  ${it.size}")
-                    favouriteAdapter.submitList(it)
+                if(it.size>0) {
+                    binding.emptyFav.visibility = View.GONE
+                    Log.i("TAG", "onViewCreated:  collect list")
+                    //var list = favouriteViewModel.getList(it)
+                    withContext(Dispatchers.Main)
+                    {
+                        Log.i("TAG", "onViewCreated:  ${it.size}")
+                        favouriteAdapter.submitList(it)
+                    }
+                }
+                else{
+                    withContext(Dispatchers.Main)
+                    {
+                        favouriteAdapter.submitList(it)
+                        binding.emptyFav.visibility = View.VISIBLE
+
+                    }
                 }
             }
         }
@@ -146,22 +157,21 @@ class FavouriteScreen : Fragment() {
         val networkCallback: NetworkCallback = object : NetworkCallback() {
             override fun onAvailable(network: Network) {
 
-                runBlocking {
-                    withContext(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
+
                         binding.networkLayout.visibility = View.GONE
                         binding.favLayout.visibility = View.VISIBLE
-                    }
+
                 }
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
-                        binding.networkLayout.visibility = View.VISIBLE
-                        binding.favLayout.visibility= View.GONE
-                    }
+                lifecycleScope.launch(Dispatchers.Main){
+
+                    binding.networkLayout.visibility = View.VISIBLE
+                    binding.favLayout.visibility= View.GONE
+
                 }
 
             }

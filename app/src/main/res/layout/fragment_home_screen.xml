@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@color/card_background"
-
     tools:context=".currentWearther.view.HomeScreen">
 
 
@@ -84,7 +83,7 @@
             android:layout_height="match_parent"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/loader"
+            app:lottie_rawRes="@raw/loader2"
             tools:layout_editor_absoluteX="-62dp"
             tools:layout_editor_absoluteY="-191dp" />
 
@@ -215,6 +214,7 @@
             android:layout_height="400dp"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="150dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -226,7 +226,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="100dp"
-                android:paddingBottom="100dp">
+                android:paddingBottom="30dp">
 
 
                 <androidx.cardview.widget.CardView
@@ -285,12 +285,14 @@
                     android:id="@+id/dailyForecast"
                     android:layout_width="350dp"
                     android:layout_height="340dp"
-                    android:layout_marginStart="28dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/card_background"
                     android:visibility="visible"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/layout"
                     app:layout_constraintTop_toBottomOf="@id/dayForecast">
 
@@ -336,13 +338,16 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="34dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="34dp"
+                    android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/card_background"
                     android:paddingStart="34dp"
                     android:paddingTop="34dp"
+                    android:visibility="visible"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/layout"
                     app:layout_constraintTop_toBottomOf="@+id/dailyForecast">
 

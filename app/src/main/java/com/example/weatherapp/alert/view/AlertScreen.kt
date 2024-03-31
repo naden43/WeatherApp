@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.text.format.DateFormat.is24HourFormat
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -39,6 +40,8 @@ import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImp
 import com.example.weatherapp.data.repository.Repository
 import com.example.weatherapp.data.local.setting.SettingLocalDataSourceImpl
 import com.example.weatherapp.data.remote.WeatherRemoteDataSourceImpl
+import com.example.weatherapp.databinding.AlertDialogBinding
+import com.example.weatherapp.databinding.ConfirmDeletionBinding
 import com.example.weatherapp.db.WeatherDataBase
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -81,122 +84,16 @@ class AlertScreen : Fragment() {
 
             if(latitude!=0.0 && longitude!=0.0) {
 
-                val dialog = Dialog(requireActivity())
-                var action = 1
-                dialog.setContentView(R.layout.alert_dialog)
-                dialog.window!!
-                    .setLayout(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                dialog.window!!.setBackgroundDrawable(requireActivity().getDrawable(R.drawable.custom_dialog))
-                //val sigin = dialog.findViewById<Button>(R.id.sigin)
-                val timeTxt = dialog.findViewById<TextView>(R.id.fromTimeTxt)
-                val dateTxt = dialog.findViewById<TextView>(R.id.fromDateTxt)
-                val cancelBtn = dialog.findViewById<Button>(R.id.cancelBtn)
-                val okBtn = dialog.findViewById<Button>(R.id.okBtn)
-                val layout = dialog.findViewById<ConstraintLayout>(R.id.fromConstrainLayout)
-                val groupBtn = dialog.findViewById<RadioGroup>(R.id.notifyMethod)
-                val notification = dialog.findViewById<RadioButton>(R.id.notificationBtn)
-                okBtn.isEnabled = false
-
-                groupBtn.setOnCheckedChangeListener { group, checkedId ->
-
-                    okBtn.isEnabled = true
-                    if(checkedId == R.id.notificationBtn)
-                    {
-                        action = 1
-                        val notificationManager = requireActivity().getSystemService(NotificationManager::class.java) as NotificationManager
-                        if(notificationManager.areNotificationsEnabled()){
-
-                        }
-                        else
-                        {
-                            ActivityCompat.requestPermissions(
-                                requireActivity(),
-                                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                100
-                            )
-                        }
-                    }
-                    else{
-                        action = 2
-                        if(!Settings.canDrawOverlays(requireContext()))
-                        {
-                            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package: com.example.weatherapp"))
-                            startActivityForResult(intent, 120)
-                        }
-                    }
-                }
-
-
-
-                val calendar = Calendar.getInstance()
-                val year = calendar[Calendar.YEAR]
-                val mounth = calendar[Calendar.MONTH]
-                val day = calendar[Calendar.DAY_OF_MONTH]
-                val hour = calendar.get(Calendar.HOUR_OF_DAY)
-                val minute = calendar.get(Calendar.MINUTE)
-
-
-                var date : String = "$year-${String.format("%02d", mounth)}-${String.format("%02d", day)}"
-                var time : String = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
-
-                val start = calendar.timeInMillis
-
-                val datePickerDialog = DatePickerDialog(
-                    requireContext(),
-                    { view, year, month, dayOfMonth ->
-
-
-                    date = "$year-${month + 1}-$dayOfMonth"
-
-                    val isSystem24Hours  = is24HourFormat(requireContext())
-                    val clockFormat = when(isSystem24Hours){
-                        true -> TimeFormat.CLOCK_24H
-                        else -> TimeFormat.CLOCK_12H
-                    }
-
-                    val picker = MaterialTimePicker.Builder()
-                        .setTimeFormat(clockFormat)
-                        .setHour(12)
-                        .setMinute(0)
-                        .setTitleText("Alarm Time")
-                        .build()
-
-                    picker.show(childFragmentManager , "TAG")
-                     picker.addOnPositiveButtonClickListener {
-
-                         time= "${String.format("%02d", picker.hour)}:${String.format("%02d", picker.minute)}"
-                         timeTxt.text = time
-                         dateTxt.text = date
-                         dialog.show()
-
-                     }
-
-                    }, year, mounth, day)
-                datePickerDialog.setOnDismissListener {
-                    Log.i("TAG", "onViewCreated: dismiss")
-                }
-                datePickerDialog.datePicker.minDate = start
-                datePickerDialog.show()
-
-
-                okBtn.setOnClickListener {
-                    alertViewModel.addAlert(latitude, longitude , date , time , action , requireContext())
-                    dialog.dismiss()
-                }
-                cancelBtn.setOnClickListener {
-                    dialog.dismiss()
-                }
+               showAlertDialog(longitude , latitude)
                 arguments = null
             }
         }
 
         alertAdapter = AlertAdapter(requireContext())
         {alert ->
+            val dialogBinding = ConfirmDeletionBinding.inflate(layoutInflater)
             val dialog = Dialog(requireActivity())
-            dialog.setContentView(R.layout.confirm_deletion)
+            dialog.setContentView(dialogBinding.root)
             dialog.window!!
                 .setLayout(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -204,26 +101,39 @@ class AlertScreen : Fragment() {
                 )
             dialog.window!!.setBackgroundDrawable(requireActivity().getDrawable(R.drawable.custom_dialog))
 
-            val okBtn = dialog.findViewById<Button>(R.id.confirmBtn)
-            val cancelBtn = dialog.findViewById<Button>(R.id.cancelBtn)
-
-
-            okBtn.setOnClickListener{
+            dialogBinding.confirmBtn.setOnClickListener{
                 alertViewModel.deleteAlert(alert)
                 dialog.dismiss()
             }
 
-            cancelBtn.setOnClickListener{
+            dialogBinding.cancelBtn.setOnClickListener{
                 dialog.dismiss()
             }
             dialog.show()
+        }
+
+        binding.refreshLayout.setOnRefreshListener {
+            Log.i("TAG", "onViewCreated: updated ")
+            alertViewModel.getAlerts()
+            binding.refreshLayout.isRefreshing = false
         }
 
         binding.alertList.adapter = alertAdapter
 
         lifecycleScope.launch(Dispatchers.IO){
             alertViewModel.alerts.collect {
-                alertAdapter.submitList(it)
+                if(it.size>0){
+                    withContext(Dispatchers.Main) {
+                        binding.emptyAlert.visibility = View.GONE
+                        alertAdapter.submitList(it)
+                    }
+                }else
+                {
+                    withContext(Dispatchers.Main) {
+                        binding.emptyAlert.visibility = View.VISIBLE
+                        alertAdapter.submitList(it)
+                    }
+                }
             }
         }
 
@@ -233,22 +143,6 @@ class AlertScreen : Fragment() {
             Navigation.findNavController(binding.root).navigate(action)
         }
 
-    }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == 100){
-            if(grantResults.size==1){
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-
-                    }
-                }
-            }
-        }
     }
 
     override fun onStart() {
@@ -261,36 +155,21 @@ class AlertScreen : Fragment() {
         val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
 
-                runBlocking {
-                    withContext(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main){
+
                         binding.networkLayout.visibility = View.GONE
                         binding.alertLayout.visibility = View.VISIBLE
-                    }
+
                 }
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
+                lifecycleScope.launch(Dispatchers.Main){
                         binding.networkLayout.visibility = View.VISIBLE
                         binding.alertLayout.visibility= View.GONE
-                    }
                 }
 
-            }
-
-            override fun onUnavailable() {
-                super.onUnavailable()
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
-                        Log.i("TAG", "onLost: nnnn ")
-                        binding.networkLayout.visibility = View.VISIBLE
-                        binding.alertLayout.visibility= View.GONE
-                    }
-                }
             }
 
         }
@@ -312,4 +191,154 @@ class AlertScreen : Fragment() {
         }
 
     }
+
+    fun showAlertDialog(longitude:Double , latitude:Double)
+    {
+        val dialog = Dialog(requireActivity())
+        var action = 1
+        val binding = AlertDialogBinding.inflate(layoutInflater)
+        dialog.setContentView(binding.root)
+        dialog.window!!
+            .setLayout(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        dialog.window!!.setBackgroundDrawable(requireActivity().getDrawable(R.drawable.custom_dialog))
+
+        val calendar = Calendar.getInstance()
+        val year = calendar[Calendar.YEAR]
+        val mounth = calendar[Calendar.MONTH]
+        val day = calendar[Calendar.DAY_OF_MONTH]
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+
+        var date : String = "$year-${String.format("%02d", mounth)}-${String.format("%02d", day)}"
+        var time : String = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
+        binding.fromTimeTxt.setOnClickListener {
+
+            val isSystem24Hours  = is24HourFormat(requireContext())
+            val clockFormat = when(isSystem24Hours){
+                true -> TimeFormat.CLOCK_24H
+                else -> TimeFormat.CLOCK_12H
+            }
+            val picker = MaterialTimePicker.Builder()
+                .setTimeFormat(clockFormat)
+                .setHour(12)
+                .setMinute(0)
+                .setTitleText("Alarm Time")
+                .build()
+
+            picker.show(childFragmentManager , "TAG")
+            picker.addOnPositiveButtonClickListener {
+
+                time= "${String.format("%02d", picker.hour)}:${String.format("%02d", picker.minute)}"
+                binding.fromTimeTxt.text = time
+            }
+        }
+
+
+        binding.fromDateTxt.setOnClickListener {
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { view, year, month, dayOfMonth ->
+
+
+                    date = "$year-${month + 1}-$dayOfMonth"
+                    binding.fromDateTxt.text = date
+
+
+                }
+                , year, mounth, day)
+
+            datePickerDialog.show()
+
+        }
+
+
+         binding.okBtn.isEnabled = false
+
+        binding.notifyMethod.setOnCheckedChangeListener { group, checkedId ->
+
+            binding.okBtn.isEnabled = true
+            if(checkedId == R.id.notificationBtn)
+            {
+                action = 1
+                val notificationManager = requireActivity().getSystemService(NotificationManager::class.java) as NotificationManager
+                if(notificationManager.areNotificationsEnabled()){
+
+                }
+                else
+                {
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                        100
+                    )
+                }
+            }
+            else{
+                action = 2
+                if(!Settings.canDrawOverlays(requireContext()))
+                {
+                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package: com.example.weatherapp"))
+                    startActivityForResult(intent, 120)
+                }
+            }
+        }
+
+
+
+
+
+        val start = calendar.timeInMillis
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { view, year, month, dayOfMonth ->
+
+
+                date = "$year-${month + 1}-$dayOfMonth"
+
+                val isSystem24Hours  = is24HourFormat(requireContext())
+                val clockFormat = when(isSystem24Hours){
+                    true -> TimeFormat.CLOCK_24H
+                    else -> TimeFormat.CLOCK_12H
+                }
+
+                val picker = MaterialTimePicker.Builder()
+                    .setTimeFormat(clockFormat)
+                    .setHour(12)
+                    .setMinute(0)
+                    .setTitleText("Alarm Time")
+                    .build()
+
+                picker.show(childFragmentManager , "TAG")
+                picker.addOnPositiveButtonClickListener {
+
+                    time= "${String.format("%02d", picker.hour)}:${String.format("%02d", picker.minute)}"
+                    binding.fromTimeTxt.text = time
+                    binding.fromDateTxt.text = date
+                    dialog.show()
+
+                }
+
+            }, year, mounth, day)
+        datePickerDialog.setOnDismissListener {
+            Log.i("TAG", "onViewCreated: dismiss")
+        }
+        datePickerDialog.datePicker.minDate = start
+        datePickerDialog.show()
+
+
+        binding.okBtn.setOnClickListener {
+            alertViewModel.addAlert(latitude, longitude , date , time , action , requireContext())
+            dialog.dismiss()
+        }
+        binding.cancelBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+
+
 }

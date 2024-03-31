@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.content.Context
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -117,9 +118,31 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
         }
 
         binding.backButton.setOnClickListener{
-            requireFragmentManager().popBackStack()
+            //requireFragmentManager().popBackStack()
+            val id = arguments?.getInt("id")
+            if(id == 1)
+            {
+                val action = mapFragmentDirections.actionMapFragment2ToSettingsScreen()
+                Navigation.findNavController(binding.root).navigate(action)
+            }
+            else if(id == 2)
+            {
+                val action = mapFragmentDirections.actionMapFragment2ToFavouriteScreen()
+                action.longitude = "0.0"
+                action.latitude = "0.0"
+                action.country = ""
+                Navigation.findNavController(binding.root).navigate(action)
+            }
+            else if(id ==3 )
+            {
+                val action = mapFragmentDirections.actionMapFragment2ToAlertScreen()
+                action.longitude = "0.0"
+                action.latitude = "0.0"
+                Navigation.findNavController(binding.root).navigate(action)
+            }
         }
     }
+
 
     override fun onMapReady(p0: GoogleMap) {
         googleMap = p0
@@ -127,18 +150,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
             latitude = latLng.latitude
             longitude = latLng.longitude
 
-            // Perform reverse geocoding to get the country
-            val geocoder = Geocoder(requireContext(), Locale.getDefault())
-            val addresses = geocoder.getFromLocation(latitude!!, longitude!!, 1)
 
-
-            /*country = ""
-            if (addresses!!.isNotEmpty()) {
-                country = addresses[0].countryName
-            }*/
-
-            // Now you have the country, you can use it as needed
-            //Log.d("Country", country)
 
             marker?.remove()
             lifecycleScope.launch {

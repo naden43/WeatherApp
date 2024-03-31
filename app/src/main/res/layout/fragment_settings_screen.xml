@@ -127,14 +127,12 @@
                             android:id="@+id/arabicSwitch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="171dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="24dp"
                             android:scaleX="1.2"
                             android:scaleY="1"
                             android:thumb="@drawable/switch_button"
                             android:track="@drawable/bg_track"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/textView11"
                             app:layout_constraintTop_toTopOf="@+id/textView11" />
 
                         <TextView
@@ -222,14 +220,12 @@
                             android:id="@+id/meterSwitch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="150dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="24dp"
                             android:scaleX="1.2"
                             android:scaleY="1"
                             android:thumb="@drawable/switch_button"
                             android:track="@drawable/bg_track"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/textView7"
                             app:layout_constraintTop_toTopOf="@+id/textView7" />
 
                         <TextView
@@ -254,7 +250,6 @@
                             android:thumb="@drawable/switch_button"
                             android:track="@drawable/bg_track"
                             app:layout_constraintEnd_toEndOf="@+id/meterSwitch"
-                            app:layout_constraintStart_toStartOf="@+id/meterSwitch"
                             app:layout_constraintTop_toTopOf="@+id/textView9" />
 
 
@@ -318,14 +313,12 @@
                             android:id="@+id/celesiusSwitch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="171dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="24dp"
                             android:scaleX="1.2"
                             android:scaleY="1"
                             android:thumb="@drawable/switch_button"
                             android:track="@drawable/bg_track"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/textView1"
                             app:layout_constraintTop_toTopOf="@+id/textView1" />
 
                         <TextView
@@ -450,7 +443,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:layout_marginEnd="36dp"
+                            android:layout_marginEnd="24dp"
                             android:scaleX="1.2"
                             android:scaleY="1"
                             android:thumb="@drawable/switch_button"

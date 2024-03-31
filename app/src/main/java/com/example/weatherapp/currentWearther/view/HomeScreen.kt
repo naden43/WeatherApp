@@ -46,6 +46,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -147,13 +148,11 @@ class HomeScreen : Fragment() {
 
                     is ApiStatus.Success -> {
 
-                        binding.loader.visibility = View.GONE
-                        binding.homeLayout.visibility = View.VISIBLE
-                        binding.networkLayout.visibility = View.GONE
-                        binding.loader.visibility = View.GONE
-
-
                         withContext(Dispatchers.Main) {
+                            binding.loader.visibility = View.GONE
+                            binding.homeLayout.visibility = View.VISIBLE
+                            binding.networkLayout.visibility = View.GONE
+                            binding.loader.visibility = View.GONE
 
                             var returnedData = result.data
 
@@ -237,20 +236,22 @@ class HomeScreen : Fragment() {
                         }
                     }
                     is ApiStatus.Failure -> {
-                        binding.loader.visibility = View.GONE
-                        binding.homeLayout.visibility = View.GONE
-                        binding.networkLayout.visibility = View.VISIBLE
-                        binding.loader.visibility = View.GONE
+                        withContext(Dispatchers.Main) {
+                            binding.loader.visibility = View.GONE
+                            binding.homeLayout.visibility = View.GONE
+                            binding.networkLayout.visibility = View.VISIBLE
+                            binding.loader.visibility = View.GONE
+                        }
 
                     }
                     is ApiStatus.Loading -> {
-
-                        binding.loader.visibility = View.VISIBLE
-                        binding.homeLayout.visibility = View.GONE
-                        binding.networkLayout.visibility = View.GONE
-                        binding.loader.visibility = View.GONE
-
-
+                        withContext(Dispatchers.Main) {
+                            Log.i("TAG", "onViewCreated: hereeeeeeeeeee ")
+                            binding.loader.visibility = View.VISIBLE
+                            binding.homeLayout.visibility = View.GONE
+                            binding.networkLayout.visibility = View.GONE
+                            binding.loader.visibility = View.GONE
+                        }
 
                     }
 
@@ -277,10 +278,21 @@ class HomeScreen : Fragment() {
             val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
 
-                    runBlocking{
+                    lifecycleScope.launch{
                         withContext(Dispatchers.Main)
                         {
                             getWeatherByLocationType()
+                            //Snackbar.make(binding.root , "You are connected now "  , Snackbar.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                override fun onLost(network: Network) {
+                    super.onLost(network)
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.Main)
+                        {
+                             Snackbar.make(binding.root , "You are not connected.."  , Snackbar.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -343,10 +355,6 @@ class HomeScreen : Fragment() {
         if(requestCode==REQUEST_CODE){
             if(grantResults.size >1 && (grantResults.get(0) == PackageManager.PERMISSION_GRANTED || grantResults.get(1)== PackageManager.PERMISSION_GRANTED)){
                 getLocation()
-                binding.loader.visibility = View.VISIBLE
-                binding.homeLayout.visibility = View.GONE
-                binding.networkLayout.visibility = View.GONE
-                binding.permission.visibility = View.GONE
             }
             else
             {

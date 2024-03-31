@@ -19,7 +19,10 @@ import android.media.MediaPlayer
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.TextView
 import com.example.weatherapp.db.WeatherDataBase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -41,12 +44,7 @@ class AlertWorker(context: Context , parameters: WorkerParameters): Worker(conte
         val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         val appid:String = "936e138c87bad11b4cc706b7849cf427"
 
-        // 1- get the data from api ( lat , long , lang )
-             // 1- get object from remote data source
 
-        val remote = WeatherRemoteDataSourceImpl.Instance()
-        val dao = WeatherDataBase.getInstance(applicationContext).getAlertWeatherDao()
-            // 2- get the weather from api
         val lon = inputData.getDouble(Constants.LONGITUDE , 0.0)
         val lat = inputData.getDouble(Constants.LATITUDE , 0.0)
         val lang = inputData.getString(Constants.LANGUAGE) ?: "en"
@@ -101,7 +99,7 @@ class AlertWorker(context: Context , parameters: WorkerParameters): Worker(conte
 
                         runBlocking {
                             withContext(Dispatchers.Main) {
-                                showOverlayDialog()
+                                showOverlayDialog(data.list[0].weather.get(0).description)
                             }
                         }
                         return  Result.success()
@@ -155,25 +153,34 @@ class AlertWorker(context: Context , parameters: WorkerParameters): Worker(conte
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun showOverlayDialog() {
+    private fun showOverlayDialog(message : String) {
+        Log.i("TAG", "showOverlayDialog: here 1")
+
+        val inflater = LayoutInflater.from(applicationContext)
+        val view = inflater.inflate(R.layout.custom_alarm, null)
         val alertDialog = AlertDialog.Builder(applicationContext)
-            .setTitle("Alert")
-            .setMessage("This is an overlay dialog!")
-            .setPositiveButton("Dismiss") { dialog, _ ->
-                stopSound()
-                dialog.dismiss()
-            }
+            .setView(view)
             .create()
 
-        // Set flags to make the dialog appear on top of other apps
-        alertDialog.window?.apply {
-            setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-            setGravity(Gravity.TOP) // Set gravity to top
-            attributes.y = 100 // Adjust the y-coordinate to position the dialog
+        Log.i("TAG", "showOverlayDialog: here2 ")
+
+        val dismiss = view.findViewById<Button>(R.id.dismissBtn)
+
+        val weatherCondition = view.findViewById<TextView>(R.id.messageTxt)
+        weatherCondition.text = message
+
+        dismiss.setOnClickListener {
+            stopSound()
+            alertDialog.dismiss()
         }
 
+        alertDialog.window?.apply {
+            setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            setGravity(Gravity.TOP)
+        }
 
-        // Show the dialog
+        Log.i("TAG", "showOverlayDialog: here3 ")
+
         alertDialog.show()
         playSound()
     }

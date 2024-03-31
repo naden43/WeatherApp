@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation.findNavController
 import com.example.weatherapp.databinding.FragmentSettingsScreenBinding
 import com.example.weatherapp.data.local.dayWeather.DayWeatherLocalDataSourceImpl
@@ -23,6 +24,7 @@ import com.example.weatherapp.db.WeatherDataBase
 import com.example.weatherapp.settings.viewModel.SettingViewModel
 import com.example.weatherapp.settings.viewModel.SettingViewModelFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -253,38 +255,26 @@ class SettingsScreen : Fragment() {
         val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
 
-                runBlocking {
-                    withContext(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
+
                         binding.networkLayout.visibility = View.GONE
                         binding.settingLayout.visibility = View.VISIBLE
-                    }
+
                 }
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
+                lifecycleScope.launch(Dispatchers.Main){
+
                         Log.i("TAG", "onLost: nnnn ")
                         binding.networkLayout.visibility = View.VISIBLE
                         binding.settingLayout.visibility= View.GONE
-                    }
+
                 }
 
             }
 
-            override fun onUnavailable() {
-                super.onUnavailable()
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
-                        Log.i("TAG", "onLost: nnnn ")
-                        binding.networkLayout.visibility = View.VISIBLE
-                        binding.settingLayout.visibility= View.GONE
-                    }
-                }
-            }
         }
 
 

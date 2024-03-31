@@ -86,9 +86,12 @@ class FavDetails : Fragment() {
                 when(result){
 
                     is ApiStatus.Success -> {
-                        binding.loader.visibility = View.GONE
+
 
                         withContext(Dispatchers.Main) {
+
+                            binding.loader.visibility = View.GONE
+                            binding.details.visibility = View.VISIBLE
 
                             var returnedData = result.data
 
@@ -183,6 +186,8 @@ class FavDetails : Fragment() {
                     is ApiStatus.Loading -> {
 
                         binding.loader.visibility = View.VISIBLE
+                        binding.details.visibility = View.GONE
+
 
                     }
 
