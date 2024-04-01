@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import java.util.Locale
 import okhttp3.Request
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -99,7 +100,7 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
                             val action = mapFragmentDirections.actionMapFragment2ToFavouriteScreen()
                             action.longitude = longitude!!.toString()
                             action.latitude = latitude!!.toString()
-                            action.country = country!!
+                            action.country = country?:"UnKnown"
                             Navigation.findNavController(binding.root).navigate(action)
                         }
 
@@ -183,14 +184,19 @@ class mapFragment : Fragment()  , OnMapReadyCallback{
 
                 val responseBody = response.body()?.string()
 
-
-                val jsonObject = JSONObject(responseBody)
-                val address = jsonObject.getJSONObject("address")
-                val city = jsonObject.optString("name" , "UnKnown")
-                city
+                try {
+                    val jsonObject = JSONObject(responseBody)
+                    val address = jsonObject.optJSONObject("address")
+                    val country = address?.optString("country", "UnKnown")
+                    val city = jsonObject.optString("name", "UnKnown")
+                    city + " " + country
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    "UnKnown"
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
-                ""
+                "UnKnown"
             }
         }
     }

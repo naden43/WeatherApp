@@ -16,9 +16,9 @@ interface FavouriteWeatherDao {
     @Delete
     fun deleteFavourite(favouriteWeather: FavouriteWeather)
     @Query("SELECT * FROM fav_weather WHERE lon = :lon AND lat = :lat" )
-    fun getFavourite(lon: Double , lat:Double): FavouriteWeather
+    fun getFavourite(lon: Double , lat:Double): Flow<FavouriteWeather>
 
     @Query("SELECT * FROM fav_weather " )
-    fun getFavourites(): List<FavouriteWeather>
+    fun getFavourites(): Flow<List<FavouriteWeather>>
 
 }

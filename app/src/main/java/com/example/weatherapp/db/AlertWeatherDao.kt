@@ -19,6 +19,6 @@ interface AlertWeatherDao {
     fun getFavourite(lon: Double , lat:Double): Flow<FavouriteWeather>*/
 
     @Query("SELECT * FROM alert_weather " )
-    fun getAlerts(): List<AlertWeather>
+    fun getAlerts(): Flow<List<AlertWeather>>
 
 }

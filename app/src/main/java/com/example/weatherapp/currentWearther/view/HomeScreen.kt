@@ -25,6 +25,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isEmpty
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.weatherapp.R
@@ -152,7 +153,7 @@ class HomeScreen : Fragment() {
                             binding.loader.visibility = View.GONE
                             binding.homeLayout.visibility = View.VISIBLE
                             binding.networkLayout.visibility = View.GONE
-                            binding.loader.visibility = View.GONE
+                            binding.permission.visibility = View.GONE
 
                             var returnedData = result.data
 
@@ -240,7 +241,7 @@ class HomeScreen : Fragment() {
                             binding.loader.visibility = View.GONE
                             binding.homeLayout.visibility = View.GONE
                             binding.networkLayout.visibility = View.VISIBLE
-                            binding.loader.visibility = View.GONE
+                            binding.permission.visibility = View.GONE
                         }
 
                     }
@@ -250,7 +251,7 @@ class HomeScreen : Fragment() {
                             binding.loader.visibility = View.VISIBLE
                             binding.homeLayout.visibility = View.GONE
                             binding.networkLayout.visibility = View.GONE
-                            binding.loader.visibility = View.GONE
+                            binding.permission.visibility = View.GONE
                         }
 
                     }
@@ -281,7 +282,9 @@ class HomeScreen : Fragment() {
                     lifecycleScope.launch{
                         withContext(Dispatchers.Main)
                         {
+                            Log.i("TAG", "onAvailable: avaliable  ")
                             getWeatherByLocationType()
+                            binding.networkLayout.visibility = View.GONE
                             //Snackbar.make(binding.root , "You are connected now "  , Snackbar.LENGTH_LONG).show()
                         }
                     }
@@ -289,12 +292,18 @@ class HomeScreen : Fragment() {
 
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    lifecycleScope.launch {
+                    /*runBlocking{
                         withContext(Dispatchers.Main)
                         {
-                             Snackbar.make(binding.root , "You are not connected.."  , Snackbar.LENGTH_LONG).show()
+                            if (binding.root!=null) {
+                                Snackbar.make(
+                                    binding.root,
+                                    "You are not connected..",
+                                    Snackbar.LENGTH_LONG
+                                ).show()
+                            }
                         }
-                    }
+                    }*/
                 }
 
             }
@@ -314,12 +323,7 @@ class HomeScreen : Fragment() {
 
         }
         else{
-            Log.i("TAG", "getWeatherByLocationType: 1 ")
-            if(settings.getSession())
-            {
-                currentWeather.getWeather(settings.getLongitude()  , settings.getLatitude() , settings.getLanguage() , settings.getUnit() , settings.getLocationMethod())
-            }
-            else {
+
                 Log.i("TAG", "getWeatherByLocationType: 2 ")
 
                 if (checkPermission()) {
@@ -343,7 +347,7 @@ class HomeScreen : Fragment() {
                     )
                 }
             }
-        }
+
 
     }
     override fun onRequestPermissionsResult(

@@ -11,18 +11,18 @@
         android:id="@+id/loader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/loader2"
-        tools:layout_editor_absoluteX="-62dp"
-        tools:layout_editor_absoluteY="-191dp" />
+        app:lottie_rawRes="@raw/loader" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,26 +47,23 @@
             android:id="@+id/timeTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
             android:text="TextView"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/locationTxt"
+            app:layout_constraintStart_toStartOf="@+id/locationTxt"
             app:layout_constraintTop_toBottomOf="@+id/locationTxt" />
 
         <ImageView
             android:id="@+id/weatherImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginStart="156dp"
             android:elevation="10dp"
             android:scaleType="fitXY"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/timeTxt"
+            app:layout_constraintStart_toStartOf="@+id/timeTxt"
             app:layout_constraintTop_toBottomOf="@+id/timeTxt"
             tools:src="@tools:sample/avatars" />
 
@@ -74,29 +71,25 @@
             android:id="@+id/descriptionTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
             android:text="TextView"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/tempTxt"
+            app:layout_constraintStart_toStartOf="@+id/tempTxt"
             app:layout_constraintTop_toBottomOf="@+id/tempTxt" />
 
         <TextView
             android:id="@+id/tempTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:text="TextView"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/weatherImage"
+            app:layout_constraintStart_toStartOf="@+id/weatherImage"
             app:layout_constraintTop_toBottomOf="@+id/weatherImage" />
 
         <ImageView
@@ -121,14 +114,12 @@
 
         <ScrollView
             android:id="@+id/scrollView"
-            android:layout_width="407dp"
-            android:layout_height="400dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="408dp"
+            android:layout_height="427dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionTxt"
-            app:layout_constraintVertical_bias="0.117">
+            app:layout_constraintTop_toBottomOf="@+id/descriptionTxt">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layout"

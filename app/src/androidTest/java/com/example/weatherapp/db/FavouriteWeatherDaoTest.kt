@@ -8,6 +8,7 @@ import androidx.test.filters.SmallTest
 import com.example.weatherapp.data.model.City
 import com.example.weatherapp.data.model.DayWeather
 import com.example.weatherapp.data.model.FavouriteWeather
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
@@ -66,7 +67,7 @@ class FavouriteWeatherDaoTest {
         val result = dao.getFavourites()
 
         //then
-        MatcherAssert.assertThat(result, `is`(tempResult))
+        MatcherAssert.assertThat(result.first(), `is`(tempResult))
     }
 
 
@@ -82,7 +83,7 @@ class FavouriteWeatherDaoTest {
         val result = dao.getFavourite(0.0 , 0.0)
 
         //then
-        MatcherAssert.assertThat(result, `is`(nullValue()))
+        MatcherAssert.assertThat(result.first(), `is`(nullValue()))
     }
 
 
@@ -98,7 +99,7 @@ class FavouriteWeatherDaoTest {
         val result = dao.getFavourites()
 
         //then
-        MatcherAssert.assertThat(result, `is`(listOf()))
+        MatcherAssert.assertThat(result.first(), `is`(listOf()))
     }
 
 

@@ -15,10 +15,10 @@ interface DayWeatherDao {
     @Delete
     fun deleteDayForecast(dayWeather: DayWeather)
     @Query("SELECT * FROM day_weather WHERE lang = :language")
-    fun getDayWeather(language: String): DayWeather
+    fun getDayWeather(language: String): Flow<DayWeather>
 
     @Query("SELECT * FROM day_weather")
-    fun getAllDayWeather(): List<DayWeather>
+    fun getAllDayWeather(): Flow<List<DayWeather>>
 
     @Query("DELETE FROM day_weather")
     fun deleteAllWeathers()

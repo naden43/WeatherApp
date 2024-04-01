@@ -167,26 +167,18 @@ class FavouriteScreen : Fragment() {
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                lifecycleScope.launch(Dispatchers.Main){
+                runBlocking {
+                    withContext(Dispatchers.Main){
 
-                    binding.networkLayout.visibility = View.VISIBLE
-                    binding.favLayout.visibility= View.GONE
-
-                }
-
-            }
-
-            override fun onUnavailable() {
-                super.onUnavailable()
-                runBlocking{
-                    withContext(Dispatchers.Main)
-                    {
-                        Log.i("TAG", "onLost: nnnn ")
                         binding.networkLayout.visibility = View.VISIBLE
-                        binding.favLayout.visibility= View.GONE
+                        binding.favLayout.visibility = View.GONE
+
                     }
                 }
+
             }
+
+
         }
 
 

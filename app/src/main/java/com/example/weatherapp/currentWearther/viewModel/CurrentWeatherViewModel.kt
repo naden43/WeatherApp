@@ -123,7 +123,7 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
                 repo.getDayForecast(lang).collect { data ->
 
                     if(data !=null) {
-                        Log.i("TAG", "getWeather: get from db ")
+                        Log.i("TAG", "getWeather: get from db faliure ")
                         val currentDate = Calendar.getInstance().time
 
                         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -137,7 +137,7 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
 
                         val dateString = outputFormat.format(date!!)
 
-                        if (currentDateString == dateString) {
+                        //if (currentDateString == dateString) {
                             if (unit == "metric") {
                                 _weather.value =
                                     ApiStatus.Success(convertTemperatureToCelsius(data))
@@ -149,38 +149,52 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
                                 _weather.value = ApiStatus.Success(data)
                             }
 
-                        } else {
+                        /*} else {
                             _weather.value = ApiStatus.Failure(it)
-                        }
+                        }*/
                     }
-                    else{
+                    /*else{
                         _weather.value = ApiStatus.Failure(it)
-                    }
+                    }*/
                 }
             }.collect {
+                Log.i("TAG", "getDataFromApi: aaaaaaaaaaaaaaaaaaaaaaa")
                 if(!repo.getSession())
                 {
                     repo.deleteAllDayWeather()
                 }
                 it.lang = repo.getLanguage()
+                Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb1")
                 repo.insertDayForecast(it)
+                Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb2")
+
                 repo.setSession(true)
+                Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb3")
+
                 // _weather.value = ApiStatus.Success(it)
                 if(unit== "metric") {
+                    Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb3")
+
                     _weather.value = ApiStatus.Success(convertTemperatureToCelsius(it))
                 }
                 else if(unit == "imperial")
                 {
+                    Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb3")
+
                     _weather.value = ApiStatus.Success(convertTemperatureToFahrenheit(it))
 
                 }
                 else
                 {
+                    Log.i("TAG", "getDataFromApi: bbbbbbbbbbbb3")
+
                     _weather.value = ApiStatus.Success(it)
                 }
             }
         }
     }
+
+
 
     fun getCurrentTimeStamp() : Int
     {
@@ -232,7 +246,14 @@ class CurrentWeatherViewModel(var repo: IRepository) : ViewModel(){
             dateTime.format(
                 DateTimeFormatter.ofPattern(
                     "EEE, dd MMMM",
-                    Locale.getDefault()
+                    if(repo.getLanguage() == "en")
+                    {
+                        Locale.ENGLISH
+                    }
+                    else
+                    {
+                         Locale("ar")
+                    }
                 )
             )
         return outputDateString

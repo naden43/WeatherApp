@@ -193,11 +193,11 @@ class SettingsScreen : Fragment() {
                 binding.gpsSwitch.isChecked = false
                 settingViewModel.setLocationMethod("MAP")
                 binding.button.isEnabled = true
+                settingViewModel.setSession(false)
 
                 val action = SettingsScreenDirections.actionSettingsScreenToMapFragment2()
                 action.id = 1
                 findNavController(binding.root).navigate(action)
-
             }
             else
             {

@@ -130,8 +130,11 @@ class AlertScreen : Fragment() {
                 }else
                 {
                     withContext(Dispatchers.Main) {
-                        binding.emptyAlert.visibility = View.VISIBLE
-                        alertAdapter.submitList(it)
+
+                        if(checkConnectivity()) {
+                            binding.emptyAlert.visibility = View.VISIBLE
+                            alertAdapter.submitList(it)
+                        }
                     }
                 }
             }
@@ -156,10 +159,9 @@ class AlertScreen : Fragment() {
             override fun onAvailable(network: Network) {
 
                 lifecycleScope.launch(Dispatchers.Main){
-
                         binding.networkLayout.visibility = View.GONE
                         binding.alertLayout.visibility = View.VISIBLE
-
+                        alertViewModel.getAlerts()
                 }
             }
 
@@ -168,6 +170,7 @@ class AlertScreen : Fragment() {
                 lifecycleScope.launch(Dispatchers.Main){
                         binding.networkLayout.visibility = View.VISIBLE
                         binding.alertLayout.visibility= View.GONE
+                        binding.emptyAlert.visibility = View.GONE
                 }
 
             }
@@ -181,13 +184,17 @@ class AlertScreen : Fragment() {
     }
 
 
-    private fun checkConnectivity(){
+    private fun checkConnectivity() : Boolean{
         val connectivityManager =
             requireActivity().getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         if(!(activeNetworkInfo != null && activeNetworkInfo.isConnected)){
             binding.networkLayout.visibility = View.VISIBLE
             binding.alertLayout.visibility= View.GONE
+            return false
+        }
+        else{
+            return true
         }
 
     }

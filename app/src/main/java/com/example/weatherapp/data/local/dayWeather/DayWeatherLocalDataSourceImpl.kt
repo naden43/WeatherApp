@@ -46,10 +46,10 @@ class DayWeatherLocalDataSourceImpl(
     }
 
     override fun getDayForecast(lang:String): Flow<DayWeather> {
-        return flow{emit(dayWeatherDao.getDayWeather(lang))}
+        return  dayWeatherDao.getDayWeather(lang)
     }
     override fun getAllDayForecast(): Flow<List<DayWeather>> {
-        return flow {  emit(dayWeatherDao.getAllDayWeather())}
+        return dayWeatherDao.getAllDayWeather()
     }
 
     override fun deleteAllDays(){
@@ -65,16 +65,16 @@ class DayWeatherLocalDataSourceImpl(
     }
 
     override fun getFavourite(lon:Double , lat:Double) : Flow<FavouriteWeather>{
-       return flow{emit(favouriteWeatherDao.getFavourite(lon , lat))}
+       return favouriteWeatherDao.getFavourite(lon , lat)
     }
 
 
     override fun getFavourites() : Flow<List<FavouriteWeather>>{
-        return flow {emit(favouriteWeatherDao.getFavourites())}
+        return favouriteWeatherDao.getFavourites()
     }
 
     override fun getAlerts() : Flow<List<AlertWeather>>{
-        return flow {  emit(alertWeatherDao.getAlerts())}
+        return alertWeatherDao.getAlerts()
     }
     override fun insertAlert(alertWeather: AlertWeather){
         alertWeatherDao.insertAlert(alertWeather)

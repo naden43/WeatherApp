@@ -65,6 +65,11 @@ class MainActivity : AppCompatActivity() {
        if(!locale.equals(settings.getLanguage())) {
            Log.i("TAG", "onCreate: jjjjjjjjjjjjjjjj${settings.getSession()} ")
              changeLanguage()
+           if (settings.getLanguage() == "en") {
+               window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
+           } else {
+               window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
+           }
        }
 
 
@@ -83,6 +88,11 @@ class MainActivity : AppCompatActivity() {
                         Log.i("TAG", "onCreate:  here  ${settings.getSession()}")
                         changeLanguage()
                         withContext(Dispatchers.Main) {
+                            if (it == "en") {
+                                window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
+                            } else {
+                                window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
+                            }
                             this@MainActivity.recreate()
                         }
                     }
@@ -183,8 +193,16 @@ class MainActivity : AppCompatActivity() {
         var config: Configuration = resources.configuration
         config.setLocale(local)
         resources.updateConfiguration(config, resources.displayMetrics)
+
     }
 
+    override fun onRestart() {
+        super.onRestart()
+    }
+    override fun onPause() {
+        super.onPause()
+        settings.setSession(false)
+    }
     override fun onDestroy() {
         super.onDestroy()
         Log.i("TAG", "onDestroy:  finish")
